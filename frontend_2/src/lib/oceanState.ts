@@ -8,7 +8,7 @@ export const oceanState = {
   mouseX: 0,        // NDC -1 to 1
   mouseY: 0,        // NDC -1 to 1
   healed: false,
-  sonarPulse: 0,    // 0 to 1
+  lastSonarTime: -100,
   
   // New cinematic properties
   timelineYear: 2025,
@@ -49,13 +49,13 @@ if (typeof window !== "undefined") {
   }, { passive: true });
 
   window.addEventListener("click", () => {
-    oceanState.sonarPulse = 1;
+    oceanState.lastSonarTime = performance.now() / 1000;
     // Broadcast standard DOM event for react components to sync
     window.dispatchEvent(new Event("trigger-sonar"));
   });
 
   window.addEventListener("trigger-sonar", () => {
-    oceanState.sonarPulse = 1;
+    oceanState.lastSonarTime = performance.now() / 1000;
   });
 
   window.addEventListener("ocean-heal", () => {

@@ -85,9 +85,19 @@ export default function BoidsSwarm() {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
     
-    // Boids are only visible in the top 20% of scroll
-    const visibility = 1 - THREE.MathUtils.clamp(oceanState.scroll * 5, 0, 1);
-    if (visibility <= 0) {
+    // Boids visibility based on scroll AND timeline year
+    const scrollVisibility = 1 - THREE.MathUtils.clamp(oceanState.scroll * 5, 0, 1);
+    
+    // Calculate population reduction based on timeline (2025 to 2050)
+    let timelineVisibility = 1;
+    if (oceanState.scenario !== "cleanup" && oceanState.scenario !== "optimistic") {
+      const yearProgress = Math.max(0, (oceanState.timelineYear - 2025) / 25);
+      timelineVisibility = 1 - (yearProgress * (oceanState.scenario === "worst_case" ? 0.9 : 0.6));
+    }
+    
+    const visibility = Math.min(scrollVisibility, timelineVisibility);
+
+    if (visibility <= 0.05) {
       meshRef.current.visible = false;
       return;
     }
@@ -97,6 +107,11 @@ export default function BoidsSwarm() {
     const mX = (oceanState.mouseX * viewport.width) / 2;
     const mY = (oceanState.mouseY * viewport.height) / 2;
     const cursor = new THREE.Vector3(mX, mY, 0);
+    
+    // Sonar Repulsion Force
+    const timeSinceSonar = (performance.now() / 1000) - oceanState.lastSonarTime;
+    const sonarActive = timeSinceSonar > 0 && timeSinceSonar < 1.5;
+    const sonarRadius = timeSinceSonar * 15; // Speed of sound wave expanding
 
     for (let i = 0; i < NUM_BOIDS; i++) {
       const b = boids[i];
@@ -138,6 +153,15 @@ export default function BoidsSwarm() {
       b.vel.add(ali.multiplyScalar(1.0));
       b.vel.add(coh.multiplyScalar(1.0));
       b.vel.add(cursorAvoid.multiplyScalar(2.0));
+
+      // Sonar avoid
+      if (sonarActive) {
+        const distToCenter = b.pos.length();
+        if (Math.abs(distToCenter - sonarRadius) < 3) {
+          const sonarAvoid = b.pos.clone().normalize().multiplyScalar(MAX_SPEED * 2);
+          b.vel.add(sonarAvoid);
+        }
+      }
 
       // Keep in bounds
       if (b.pos.x > 18) b.vel.x -= 0.1;

@@ -191,13 +191,15 @@ function SonarRings() {
   const MAX = 3;
 
   useFrame((state, delta) => {
-    if (oceanState.sonarPulse > 0) {
+    // If a sonar pulse happened recently
+    const timeSinceSonar = (performance.now() / 1000) - oceanState.lastSonarTime;
+    
+    if (timeSinceSonar > 0 && timeSinceSonar < 0.1) {
       const slot = rings.current.findIndex(r => r.t > 1.5);
       const idx = slot >= 0 ? slot : (rings.current.length < MAX ? rings.current.length : -1);
       if (idx >= 0 && meshRefs.current[idx]) {
         rings.current[idx] = { ref: meshRefs.current[idx], t: 0 };
       }
-      oceanState.sonarPulse = 0;
     }
 
     rings.current.forEach((ring) => {
