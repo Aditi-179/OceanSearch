@@ -12,7 +12,7 @@ export default function NGODashboard() {
       <div className="bg-gradient-to-r from-cyan-glow/20 to-blue-500/20 p-6 md:px-8 border-b border-white/10 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-white tracking-wide">PUBLIC PORTAL</h2>
-          <p className="text-white/70 text-sm mt-1">DeepSea Guardian NGO Initiative</p>
+          <p className="text-white/70 text-sm mt-1">OceanSearchNGO Initiative</p>
         </div>
         <div className="hidden md:flex gap-4">
           <div className="bg-black/30 rounded-lg px-4 py-2 border border-white/10 flex items-center gap-3">

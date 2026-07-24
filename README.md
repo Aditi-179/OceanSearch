@@ -1,7 +1,7 @@
 # 🌊 Ocean Search
 ### AI-Powered Deep Ocean Pollution & Biodiversity Monitoring
 
-DeepSea Guardian is an interactive frontend platform designed for the **HackOcean Frontend Hackathon**. It bridges the gap between complex marine AI monitoring systems and public engagement through immersive storytelling, real-time data visualization, and gamified conservation experiences. :contentReference[oaicite:0]{index=0}
+OceanSearchis an interactive frontend platform designed for the **HackOcean Frontend Hackathon**. It bridges the gap between complex marine AI monitoring systems and public engagement through immersive storytelling, real-time data visualization, and gamified conservation experiences. :contentReference[oaicite:0]{index=0}
 
 ---
 
