@@ -72,7 +72,7 @@ export default function Hero() {
           transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
         >
           <Link
-            href="/research"
+            href="/dashboard"
             className="px-8 py-4 bg-cyan-glow/10 hover:bg-cyan-glow/20 border border-cyan-glow text-cyan-glow font-semibold tracking-widest uppercase rounded-full transition-all duration-300 backdrop-blur-sm"
           >
             Explore Ocean

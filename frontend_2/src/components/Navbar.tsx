@@ -61,9 +61,6 @@ export default function Navbar() {
           <Link href="/" className="text-sm font-medium hover:text-white/70 transition-colors">
             Public Portal
           </Link>
-          <Link href="/research" className="text-sm font-medium text-cyan-glow hover:text-cyan-400 transition-colors">
-            Research Dashboard
-          </Link>
         </div>
 
         {/* Depth HUD */}
