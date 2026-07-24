@@ -68,10 +68,15 @@ export default function Silhouettes() {
         <svg viewBox="0 0 400 140" className="w-full h-full">
           {/* Body */}
           <path d="M380,70 C350,50 250,40 180,45 C100,50 40,60 20,70 C40,85 100,95 180,90 C250,85 350,85 380,70Z" fill="rgba(15,45,75,0.9)" />
-          {/* Spots pattern */}
-          {[...Array(40)].map((_, i) => (
-            <circle key={i} cx={50 + Math.random() * 250} cy={50 + Math.random() * 35} r={1.5 + Math.random() * 2} fill="rgba(150,200,255,0.4)" />
-          ))}
+          {/* Spots pattern (deterministic to prevent hydration mismatch) */}
+          {[...Array(40)].map((_, i) => {
+            const rX = Math.abs(Math.sin(i * 123.45));
+            const rY = Math.abs(Math.cos(i * 987.65));
+            const rR = Math.abs(Math.sin(i * 321.12));
+            return (
+              <circle key={i} cx={50 + rX * 250} cy={50 + rY * 35} r={1.5 + rR * 2} fill="rgba(150,200,255,0.4)" />
+            );
+          })}
           {/* Mouth (blunt front) */}
           <path d="M20,70 C15,65 15,75 20,70Z" fill="rgba(10,30,55,0.95)" />
           {/* Dorsal fin */}

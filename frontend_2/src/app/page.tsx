@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import FeatureCard from "@/components/FeatureCard";
 import Dashboard from "@/components/Dashboard";
 import Timeline from "@/components/Timeline";
-import Donation from "@/components/Donation";
+import NGODashboard from "@/components/NGODashboard";
 import DepthMeter from "@/components/DepthMeter";
 import EcosystemEngine from "@/components/canvas/EcosystemEngine";
 import OceanEffects from "@/components/OceanEffects";
@@ -31,6 +31,13 @@ export default function Home() {
 
         {/* ── 0m SURFACE ─────────────────────────────────────────────────── */}
         <Hero />
+        
+        {/* ── LEVEL 1: THE SURFACE (Public Portal) ──────────────────────── */}
+        <section className="relative w-full py-16 z-20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <NGODashboard />
+          </div>
+        </section>
 
         {/* ── 20m–80m SHALLOWS — discovery gap ──────────────────────────── */}
         <div className="h-[40vh] relative">
@@ -158,10 +165,6 @@ export default function Home() {
           </div>
 
           <Timeline />
-
-          <div className="container mx-auto px-6 py-40">
-            <Donation />
-          </div>
 
         </section>
 

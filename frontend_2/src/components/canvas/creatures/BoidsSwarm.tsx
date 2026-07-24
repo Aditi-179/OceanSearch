@@ -11,12 +11,12 @@ interface Boid {
   phase: number;
 }
 
-// Boids parameters
-const NUM_BOIDS = 120;
-const MAX_SPEED = 4;
-const MAX_FORCE = 0.05;
-const NEIGHBOR_DIST = 3;
-const DESIRED_SEPARATION = 1.0;
+// Boids parameters (made much more dynamic and alive)
+const NUM_BOIDS = 180;
+const MAX_SPEED = 7;
+const MAX_FORCE = 0.15;
+const NEIGHBOR_DIST = 4;
+const DESIRED_SEPARATION = 1.5;
 
 function makeFishGeometry(scale = 1): THREE.BufferGeometry {
   const shape = new THREE.Shape();
@@ -24,7 +24,12 @@ function makeFishGeometry(scale = 1): THREE.BufferGeometry {
   shape.bezierCurveTo(0.4 * scale, 0.18 * scale, -0.2 * scale, 0.22 * scale, -0.4 * scale, 0.08 * scale);
   shape.lineTo(-0.5 * scale, 0);
   shape.bezierCurveTo(-0.2 * scale, -0.22 * scale, 0.4 * scale, -0.18 * scale, 0.5 * scale, 0);
-  return new THREE.ShapeGeometry(shape, 8); // low poly for instancing
+  
+  // Make it 3D instead of 2D flat shape
+  const extrudeSettings = { depth: 0.08 * scale, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 };
+  const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  geo.center(); // Center the geometry for proper rotation
+  return geo;
 }
 
 const FISH_COLORS = [
@@ -152,10 +157,11 @@ export default function BoidsSwarm() {
       dummy.scale.set(isMovingLeft ? -1 : 1, 1, 1);
       
       // Add slight z-rotation to simulate swimming up/down
-      dummy.rotation.set(0, 0, (b.vel.y * 0.1) * (isMovingLeft ? -1 : 1));
+      dummy.rotation.set(0, 0, (b.vel.y * 0.15) * (isMovingLeft ? -1 : 1));
       
-      // Wobble body
-      dummy.rotation.z += Math.sin(t * 10 + b.phase) * 0.1;
+      // Fast wobble body to simulate active swimming
+      dummy.rotation.y += Math.sin(t * 15 + b.phase) * 0.15; // side to side wag
+      dummy.rotation.z += Math.cos(t * 12 + b.phase) * 0.05; // slight roll
       
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);

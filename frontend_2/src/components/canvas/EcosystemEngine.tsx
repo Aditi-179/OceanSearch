@@ -8,7 +8,6 @@ import { oceanState, depthLerp } from "@/lib/oceanState";
 // Ecosystem Components
 import BoidsSwarm from "./creatures/BoidsSwarm";
 import PredatorFish from "./creatures/PredatorFish";
-import CoralReef from "./flora/CoralReef";
 import DeepSeaJellies from "./creatures/DeepSeaJellies";
 import MidnightCreatures from "./creatures/MidnightCreatures";
 import BenthicLife from "./creatures/BenthicLife";
@@ -254,7 +253,6 @@ export default function EcosystemEngine() {
         {/* Fauna & Flora */}
         <BoidsSwarm />
         <PredatorFish />
-        <CoralReef />
         <DeepSeaJellies />
         <MidnightCreatures />
         <BenthicLife />
