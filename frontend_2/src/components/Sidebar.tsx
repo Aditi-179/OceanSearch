@@ -62,7 +62,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden" data-lenis-prevent="" suppressHydrationWarning>
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
