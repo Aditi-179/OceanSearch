@@ -7,11 +7,16 @@ import * as THREE from "three";
 
 // We keep a global reference to scroll progress for the canvas to read synchronously
 let globalScrollProgress = 0;
+let isHealed = false;
 
 if (typeof window !== "undefined") {
   window.addEventListener("scroll", () => {
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     globalScrollProgress = Math.max(0, Math.min(1, window.scrollY / (maxScroll || 1)));
+  });
+  
+  window.addEventListener("ocean-heal", () => {
+    isHealed = true;
   });
 }
 
@@ -25,20 +30,25 @@ function DepthFog() {
   const abyssColor = useMemo(() => new THREE.Color("#000000"), []);
 
   useFrame(() => {
-    // Interpolate fog color based on scroll
+    // Interpolate fog color based on scroll, OR if healed, interpolate back to a bright beautiful color
     let targetColor = surfaceColor;
-    if (globalScrollProgress < 0.5) {
-      targetColor = surfaceColor.clone().lerp(midColor, globalScrollProgress * 2);
+    
+    if (isHealed) {
+      targetColor = new THREE.Color("#00BFFF"); // Bright healed ocean blue
     } else {
-      targetColor = midColor.clone().lerp(abyssColor, (globalScrollProgress - 0.5) * 2);
+      if (globalScrollProgress < 0.5) {
+        targetColor = surfaceColor.clone().lerp(midColor, globalScrollProgress * 2);
+      } else {
+        targetColor = midColor.clone().lerp(abyssColor, (globalScrollProgress - 0.5) * 2);
+      }
     }
     
-    fogColor.lerp(targetColor, 0.1);
+    // Smooth transition (slower if healing so it looks like a sunrise)
+    fogColor.lerp(targetColor, isHealed ? 0.02 : 0.1);
     scene.background = fogColor;
     if (scene.fog) {
       scene.fog.color = fogColor;
-      // Increase fog density slightly as we go deeper
-      (scene.fog as THREE.FogExp2).density = THREE.MathUtils.lerp(0.04, 0.08, globalScrollProgress);
+      (scene.fog as THREE.FogExp2).density = THREE.MathUtils.lerp(isHealed ? 0.02 : 0.04, 0.08, globalScrollProgress);
     }
   });
 
@@ -46,41 +56,57 @@ function DepthFog() {
 }
 
 function Particles() {
-  const ref1 = useRef<THREE.Points>(null!);
-  const ref2 = useRef<THREE.Points>(null!);
-  const ref3 = useRef<THREE.Points>(null!); // Marine Snow for abyss
+  const ref1 = useRef<THREE.Group>(null!);
+  const ref2 = useRef<THREE.Group>(null!);
+  const ref3 = useRef<THREE.Group>(null!); // Marine Snow for abyss
   
   useFrame((state, delta) => {
     if (ref1.current) {
       ref1.current.rotation.y += delta * 0.05;
       ref1.current.rotation.x += delta * 0.02;
-      // Fade out surface bubbles as we go deeper
-      (ref1.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0.5, 0, globalScrollProgress * 2);
+      // Safely access the Sparkles child mesh to fade it out
+      const points = ref1.current.children[0] as any;
+      if (points?.material) {
+        points.material.opacity = THREE.MathUtils.lerp(0.5, 0, globalScrollProgress * 2);
+        points.material.transparent = true;
+      }
     }
     if (ref2.current) {
       ref2.current.rotation.y += delta * 0.02;
-      // Mid-level bioluminescence
       const midOpacity = Math.sin(globalScrollProgress * Math.PI); // peaks at 0.5
-      (ref2.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0, 0.8, midOpacity);
+      const points = ref2.current.children[0] as any;
+      if (points?.material) {
+        points.material.opacity = THREE.MathUtils.lerp(0, 0.8, midOpacity);
+        points.material.transparent = true;
+      }
     }
     if (ref3.current) {
-      ref3.current.position.y -= delta * 0.5; // drifting down
+      ref3.current.position.y -= delta * (isHealed ? -2 : 0.5); // drift up if healed
       if (ref3.current.position.y < -10) ref3.current.position.y = 10;
-      // Abyss marine snow
+      if (isHealed && ref3.current.position.y > 10) ref3.current.position.y = -10;
+      
       const abyssOpacity = globalScrollProgress > 0.6 ? (globalScrollProgress - 0.6) * 2.5 : 0;
-      (ref3.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0, 0.6, abyssOpacity);
+      const points = ref3.current.children[0] as any;
+      if (points?.material) {
+        points.material.opacity = THREE.MathUtils.lerp(0, 0.6, isHealed ? 1 : abyssOpacity);
+        points.material.transparent = true;
+        if (isHealed) {
+          // Sparkles color uniform/property depending on version
+          if (points.material.color) points.material.color.set("#43F7FF");
+        }
+      }
     }
   });
 
   return (
     <group>
-      <group ref={ref1 as any}>
+      <group ref={ref1}>
         <Sparkles count={500} scale={30} size={6} speed={0.8} opacity={0.5} color="#DDF5FF" />
       </group>
-      <group ref={ref2 as any}>
+      <group ref={ref2}>
         <Sparkles count={300} scale={20} size={10} speed={0.2} opacity={0} color="#43F7FF" />
       </group>
-      <group ref={ref3 as any}>
+      <group ref={ref3}>
         <Sparkles count={800} scale={40} size={3} speed={0.1} opacity={0} color="#ffffff" />
       </group>
     </group>

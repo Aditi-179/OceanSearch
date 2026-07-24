@@ -5,6 +5,7 @@ import Dashboard from "@/components/Dashboard";
 import Timeline from "@/components/Timeline";
 import Donation from "@/components/Donation";
 import DepthMeter from "@/components/DepthMeter";
+import Silhouettes from "@/components/Silhouettes";
 import OceanCanvas from "@/components/canvas/OceanCanvas";
 import { ThermometerSun, Trash2, Anchor, FishOff } from "lucide-react";
 
@@ -13,6 +14,7 @@ export default function Home() {
     <main className="relative bg-transparent text-foreground selection:bg-cyan-glow/30 selection:text-white">
       <Navbar />
       <DepthMeter />
+      <Silhouettes />
       
       {/* Global 3D Background */}
       <OceanCanvas />

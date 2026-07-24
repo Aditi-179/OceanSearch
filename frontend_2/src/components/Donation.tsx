@@ -56,7 +56,12 @@ export default function Donation() {
             </div>
             
             <button 
-              onClick={() => setSubmitted(true)}
+              onClick={() => {
+                setSubmitted(true);
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new Event('ocean-heal'));
+                }
+              }}
               className="group w-full py-4 rounded-xl bg-white text-background font-bold flex items-center justify-center gap-2 hover:bg-cyan-glow transition-colors duration-300"
             >
               Deploy Support <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
