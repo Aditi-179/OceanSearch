@@ -43,7 +43,7 @@ export default function BoidsSwarm() {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
   
   // Shared geometry and material
-  const geometry = useMemo(() => makeFishGeometry(0.25), []);
+  const geometry = useMemo(() => makeFishGeometry(0.5), []);
   const material = useMemo(() => new THREE.MeshBasicMaterial({
     color: "#ffffff",
     side: THREE.DoubleSide,
@@ -88,24 +88,15 @@ export default function BoidsSwarm() {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
     
-    // Boids visibility based on scroll AND timeline year
-    const scrollVisibility = 1 - THREE.MathUtils.clamp(oceanState.scroll * 5, 0, 1);
-    
-    // Calculate population reduction based on timeline (2025 to 2050)
-    let timelineVisibility = 1;
-    if (oceanState.scenario !== "cleanup" && oceanState.scenario !== "optimistic") {
-      const yearProgress = Math.max(0, (oceanState.timelineYear - 2025) / 25);
-      timelineVisibility = 1 - (yearProgress * (oceanState.scenario === "worst_case" ? 0.9 : 0.6));
-    }
-    
-    const visibility = Math.min(scrollVisibility, timelineVisibility);
+    // Fish are always clearly visible now as requested
+    const visibility = 1.0;
 
     if (visibility <= 0.05) {
       meshRef.current.visible = false;
       return;
     }
     meshRef.current.visible = true;
-    material.opacity = visibility * 0.9;
+    material.opacity = visibility;
 
     const mX = (oceanState.mouseX * viewport.width) / 2;
     const mY = (oceanState.mouseY * viewport.height) / 2;

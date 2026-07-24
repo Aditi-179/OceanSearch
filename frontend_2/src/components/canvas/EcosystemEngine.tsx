@@ -13,7 +13,6 @@ import PredatorFish from "./creatures/PredatorFish";
 import DeepSeaJellies from "./creatures/DeepSeaJellies";
 import MidnightCreatures from "./creatures/MidnightCreatures";
 import BenthicLife from "./creatures/BenthicLife";
-import LivingCorals from "./creatures/LivingCorals";
 
 // ─── BACKGROUND & FOG ────────────────────────────────────────────────────────
 const DEPTH_COLORS = [
@@ -113,76 +112,116 @@ function AmbientParticles() {
     y: -(0.003 + Math.random() * 0.01),
   })), []);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!pointsRef.current) return;
     const pos = (pointsRef.current.geometry.attributes.position as THREE.BufferAttribute).array as Float32Array;
     
     // Switch between bubbles (up) and snow (down) based on depth
     const isSurface = oceanState.scroll < 0.2;
+    const mX = (oceanState.mouseX * state.viewport.width) / 2;
+    const mY = (oceanState.mouseY * state.viewport.height) / 2;
     
     for (let i = 0; i < count; i++) {
-      pos[i * 3] += vel[i].x;
+      // Global Ocean Current Drift (from oceanState)
+      pos[i * 3] += vel[i].x + oceanState.currentVelocity.x;
+      pos[i * 3 + 2] += oceanState.currentVelocity.z; // Drift in Z axis too
+      
+      // Keep within bounds horizontally
+      if (pos[i * 3] > 20) pos[i * 3] = -20;
+      if (pos[i * 3] < -20) pos[i * 3] = 20;
+      if (pos[i * 3 + 2] > 10) pos[i * 3 + 2] = -10;
+      if (pos[i * 3 + 2] < -10) pos[i * 3 + 2] = 10;
       
       if (isSurface || oceanState.healed) {
         pos[i * 3 + 1] += Math.abs(vel[i].y) * 2; // Bubbles go up
         if (pos[i * 3 + 1] > 10) pos[i * 3 + 1] = -10;
       } else {
-        pos[i * 3 + 1] += vel[i].y; // Snow goes down
+        pos[i * 3 + 1] += vel[i].y + oceanState.currentVelocity.y; // Snow goes down and drifts
         if (pos[i * 3 + 1] < -10) pos[i * 3 + 1] = 10;
+        
+        // Bioluminescence interaction: particles near mouse get pushed and glow
+        if (oceanState.scroll > 0.4) {
+          const dx = pos[i * 3] - mX;
+          const dy = pos[i * 3 + 1] - mY;
+          const distSq = dx*dx + dy*dy;
+          if (distSq < 2) {
+             pos[i * 3] += dx * 0.05;
+             pos[i * 3 + 1] += dy * 0.05;
+          }
+        }
       }
     }
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
     
-    const targetOpacity = oceanState.healed ? THREE.MathUtils.lerp(mat.opacity, 0.4, 0.05) : depthLerp(0.3, 0.8, 0, 1);
+    let targetOpacity = oceanState.healed ? THREE.MathUtils.lerp(mat.opacity, 0.4, 0.05) : depthLerp(0.3, 0.8, 0, 1);
+    
+    // General bioluminescence pulse in deep water
+    if (oceanState.scroll > 0.5) {
+      targetOpacity += Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      mat.color.setHex(0x43F7FF); // Cyan glow
+    } else {
+      mat.color.setHex(0xffffff); // Normal white
+    }
+    
     mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.05);
   });
 
   return <points ref={pointsRef} geometry={geo} material={mat} />;
 }
 
-// ─── AI DRONE ───────────────────────────────────────────────────────────────
-function AIDrone() {
-  const droneRef = useRef<THREE.Group>(null!);
-  const lightRef = useRef<THREE.PointLight>(null!);
+// ─── AUTONOMOUS DRONE SWARM ──────────────────────────────────────────────────
+function DroneSwarm() {
+  const droneRefs = useRef<(THREE.Group | null)[]>([]);
+  const swarm = useMemo(() => [
+    { id: 1, type: "Coral Survey", offset: [0, 0, 0], color: "#43F7FF" },
+    { id: 2, type: "Plastic Detection", offset: [-8, 2, -5], color: "#FFC107" },
+    { id: 3, type: "Marine Mammal", offset: [6, -3, -8], color: "#00FF66" }
+  ], []);
 
   useFrame((state) => {
-    if (!droneRef.current) return;
     const t = state.clock.elapsedTime;
     const vis = depthLerp(0, 1, 0.5, 0.7);
 
-    droneRef.current.position.x = Math.sin(t * 0.4) * 5 + Math.cos(t * 0.2) * 3;
-    droneRef.current.position.y = Math.cos(t * 0.3) * 2 + Math.sin(t * 0.7) * 1;
-    droneRef.current.position.z = -3;
-    droneRef.current.rotation.z = Math.sin(t * 0.5) * 0.1;
+    swarm.forEach((drone, i) => {
+      const ref = droneRefs.current[i];
+      if (!ref) return;
 
-    droneRef.current.children.forEach((child) => {
-      if ((child as THREE.Mesh).material) {
-        ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = vis * 0.8;
-      }
+      ref.position.x = drone.offset[0] + Math.sin(t * 0.4 + i) * 4;
+      ref.position.y = drone.offset[1] + Math.cos(t * 0.3 + i * 2) * 2;
+      ref.position.z = drone.offset[2] - 3;
+      
+      // Look forward along path
+      ref.rotation.z = Math.sin(t * 0.5 + i) * 0.1;
+      ref.rotation.y = Math.cos(t * 0.2 + i) * 0.2;
+
+      ref.children.forEach((child) => {
+        if ((child as THREE.Mesh).material) {
+          ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = vis * 0.8;
+        }
+      });
     });
-
-    if (lightRef.current) {
-      lightRef.current.intensity = vis * (1.5 + 0.5 * Math.sin(t * 3));
-    }
   });
 
   return (
-    <group ref={droneRef}>
-      <mesh>
-        <boxGeometry args={[0.4, 0.15, 0.4]} />
-        <meshBasicMaterial color="#c8eeff" transparent opacity={0} fog />
-      </mesh>
-      {[[-0.3, 0, -0.3], [0.3, 0, -0.3], [-0.3, 0, 0.3], [0.3, 0, 0.3]].map((pos, i) => (
-        <mesh key={i} position={pos as [number, number, number]}>
-          <sphereGeometry args={[0.06, 6, 6]} />
-          <meshBasicMaterial color="#43F7FF" transparent opacity={0} fog />
-        </mesh>
+    <group>
+      {swarm.map((drone, i) => (
+        <group key={drone.id} ref={(el) => { droneRefs.current[i] = el; }}>
+          <mesh>
+            <boxGeometry args={[0.4, 0.15, 0.4]} />
+            <meshBasicMaterial color="#c8eeff" transparent opacity={0} fog />
+          </mesh>
+          {[[-0.3, 0, -0.3], [0.3, 0, -0.3], [-0.3, 0, 0.3], [0.3, 0, 0.3]].map((pos, j) => (
+            <mesh key={j} position={pos as [number, number, number]}>
+              <sphereGeometry args={[0.06, 6, 6]} />
+              <meshBasicMaterial color={drone.color} transparent opacity={0} fog />
+            </mesh>
+          ))}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+            <coneGeometry args={[0.6, 2, 8, 1, true]} />
+            <meshBasicMaterial color={drone.color} transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} fog />
+          </mesh>
+        </group>
       ))}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <coneGeometry args={[0.6, 2, 8, 1, true]} />
-        <meshBasicMaterial color="#43F7FF" transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} fog />
-      </mesh>
-      <pointLight ref={lightRef} color="#43F7FF" intensity={0} distance={8} decay={2} />
     </group>
   );
 }
@@ -253,11 +292,10 @@ export default function EcosystemEngine() {
         <CausticRays />
         <AmbientParticles />
         <SonarRings />
-        <AIDrone />
+        <DroneSwarm />
 
         {/* Fauna & Flora */}
         <BoidsSwarm />
-        <LivingCorals />
         <PredatorFish />
         <DeepSeaJellies />
         <MidnightCreatures />
@@ -265,20 +303,7 @@ export default function EcosystemEngine() {
 
         {/* Cinematic Post-Processing Lens */}
         <EffectComposer disableNormalPass multisampling={0}>
-          <DepthOfField 
-            focusDistance={0.01} 
-            focalLength={0.05} 
-            bokehScale={3} 
-            height={480} 
-          />
-          <ChromaticAberration 
-            blendFunction={BlendFunction.NORMAL}
-            offset={new THREE.Vector2(0.002, 0.002)}
-            radialModulation={true}
-            modulationOffset={0.5}
-          />
-          <Noise opacity={0.08} blendFunction={BlendFunction.OVERLAY} />
-          <Vignette eskil={false} offset={0.1} darkness={1.1} />
+          <Noise opacity={0.03} blendFunction={BlendFunction.OVERLAY} />
         </EffectComposer>
 
       </Canvas>

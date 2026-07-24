@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Droplet } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function Navbar() {
   const { scrollY } = useScroll();
@@ -55,12 +56,14 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8 glass-panel px-8 py-3 rounded-full">
-          <NavLink href="#mission">Mission</NavLink>
-          <NavLink href="#threats">Threats</NavLink>
-          <NavLink href="#ai-system">AI System</NavLink>
-          <NavLink href="#take-action">Take Action</NavLink>
+        {/* Desktop Links (Now App Router Links) */}
+        <div className="hidden md:flex items-center gap-4 glass-panel px-6 py-2 rounded-full">
+          <Link href="/" className="text-sm font-medium hover:text-white/70 transition-colors">
+            Public Portal
+          </Link>
+          <Link href="/research" className="text-sm font-medium text-cyan-glow hover:text-cyan-400 transition-colors">
+            Research Dashboard
+          </Link>
         </div>
 
         {/* Depth HUD */}

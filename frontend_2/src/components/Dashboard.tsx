@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Radar, Video } from "lucide-react";
-import { io } from "socket.io-client";
 
 // Modular cinematic components
 import PredictiveMap from "./dashboard/PredictiveMap";
@@ -11,9 +10,7 @@ import EmergencyAlerts from "./dashboard/EmergencyAlerts";
 import AccessibilityPanel from "./dashboard/AccessibilityPanel";
 import IotCharts from "./dashboard/IotCharts";
 import { oceanState } from "@/lib/oceanState";
-
-// Connect to backend WebSocket
-const socket = io("http://127.0.0.1:5000");
+import { useSimulationEngine } from "@/lib/useSimulationEngine";
 
 // --- INITIAL DUMMY DATA FOR CHARTS ---
 const initialIotData = [
@@ -26,11 +23,8 @@ const initialIotData = [
 ];
 
 export default function Dashboard() {
-  const [chartData, setChartData] = useState(initialIotData);
-  const [logMessages, setLogMessages] = useState<{ id: number, text: string, type: "info" | "ok" | "warn" }[]>([
-    { id: 1, text: "[OK] System Initialized", type: "ok" },
-    { id: 2, text: "[INFO] Drone 04 battery at 82%.", type: "info" }
-  ]);
+  const { chartData, logMessages } = useSimulationEngine();
+  
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Play sonar ping
@@ -60,13 +54,6 @@ export default function Dashboard() {
 
   // Sonar heartbeat & data connection
   useEffect(() => {
-    // 1. Sonar Heartbeat loop (every 5 seconds)
-    const heartbeat = setInterval(() => {
-      // Trigger DOM event
-      window.dispatchEvent(new Event("trigger-sonar"));
-    }, 5000);
-
-    // 2. Listen to sonar trigger event
     const handleSonar = () => {
       playSonar();
       // Animate map ring
@@ -80,28 +67,8 @@ export default function Dashboard() {
     };
     window.addEventListener("trigger-sonar", handleSonar);
 
-    // 3. IoT Data Updates from WebSocket
-    const handleIotUpdate = (data: { time: string; temp: number; pollution: number }) => {
-      setChartData(prev => {
-        const newData = [...prev, data];
-        if (newData.length > 7) newData.shift();
-        return newData;
-      });
-      // Randomly push a log message sometimes
-      if (Math.random() > 0.7) {
-        setLogMessages(prev => {
-          const newLogs = [{ id: Date.now(), text: `[INFO] Sensor reading updated at ${data.time}`, type: "info" as const }, ...prev];
-          if (newLogs.length > 5) newLogs.pop();
-          return newLogs;
-        });
-      }
-    };
-    socket.on("iot_data_update", handleIotUpdate);
-
     return () => {
-      clearInterval(heartbeat);
       window.removeEventListener("trigger-sonar", handleSonar);
-      socket.off("iot_data_update", handleIotUpdate);
     };
   }, []);
 

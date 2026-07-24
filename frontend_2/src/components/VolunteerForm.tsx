@@ -91,15 +91,12 @@ export default function VolunteerForm() {
                 onClick={async () => {
                   setLoading(true);
                   try {
-                    await fetch("http://127.0.0.1:5000/api/volunteers", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ name, email, role })
-                    });
+                    // Simulate network request since backend is merged/removed
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                     setSubmitted(true);
                   } catch (e) {
                     console.error(e);
-                    alert("Backend connection failed.");
+                    alert("Submission failed.");
                   } finally {
                     setLoading(false);
                   }

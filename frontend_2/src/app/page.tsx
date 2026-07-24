@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeatureCard from "@/components/FeatureCard";
-import Dashboard from "@/components/Dashboard";
 import Timeline from "@/components/Timeline";
 import NGODashboard from "@/components/NGODashboard";
 import DepthMeter from "@/components/DepthMeter";
@@ -122,10 +121,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── TWILIGHT ZONE — AI Dashboard (unchanged) ───────────────────── */}
+        {/* ── TWILIGHT ZONE ───────────────────── */}
         <section
-          id="ai-system"
-          className="relative w-full min-h-screen flex items-center justify-center py-32"
+          id="twilight-zone"
+          className="relative w-full min-h-[50vh] flex items-center justify-center py-32"
         >
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
@@ -136,12 +135,9 @@ export default function Home() {
                 Twilight <span className="font-bold text-cyan-glow">Zone</span>
               </h2>
               <p className="text-xl text-white/70 max-w-2xl mx-auto drop-shadow-lg font-light">
-                Sunlight is barely visible. Our AI drones patrol these depths, tracking elusive
-                marine life and mapping uncharted territories.
+                Sunlight is barely visible. The ocean opens up into a vast, uncharted expanse.
               </p>
             </div>
-
-            <Dashboard />
           </div>
         </section>
 

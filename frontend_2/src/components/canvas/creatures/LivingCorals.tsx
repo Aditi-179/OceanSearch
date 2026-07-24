@@ -8,8 +8,8 @@ import { oceanState } from "@/lib/oceanState";
 const NUM_CORALS = 150;
 
 function makeCoralGeometry() {
-  const geo = new THREE.CylinderGeometry(0, 0.2, 1, 5, 1, false);
-  geo.translate(0, 0.5, 0); // anchor at base
+  const geo = new THREE.CapsuleGeometry(0.15, 0.8, 4, 8);
+  geo.translate(0, 0.4, 0); // anchor at base
   return geo;
 }
 
