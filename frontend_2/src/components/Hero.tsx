@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { useRef } from "react";
+import Link from "next/link";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,6 +65,19 @@ export default function Hero() {
           Dive into the world's most advanced AI-powered ocean conservation platform. 
           Real-time threat detection, marine life tracking, and global restoration efforts.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
+        >
+          <Link
+            href="/research"
+            className="px-8 py-4 bg-cyan-glow/10 hover:bg-cyan-glow/20 border border-cyan-glow text-cyan-glow font-semibold tracking-widest uppercase rounded-full transition-all duration-300 backdrop-blur-sm"
+          >
+            Explore Ocean
+          </Link>
+        </motion.div>
       </motion.div>
 
       <motion.div
