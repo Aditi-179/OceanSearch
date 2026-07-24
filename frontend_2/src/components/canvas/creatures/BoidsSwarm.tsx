@@ -13,8 +13,8 @@ interface Boid {
 
 // Boids parameters (made much more dynamic and alive)
 const NUM_BOIDS = 180;
-const MAX_SPEED = 6;
-const MAX_FORCE = 0.04;
+const MAX_SPEED = 3;
+const MAX_FORCE = 0.02;
 const NEIGHBOR_DIST = 4;
 const DESIRED_SEPARATION = 1.5;
 
@@ -196,7 +196,7 @@ export default function BoidsSwarm() {
       }
       
       // Soft wobble body to simulate active swimming
-      dummy.rotateY(Math.sin(t * 8 + b.phase) * 0.06); // very gentle wag
+      dummy.rotateY(Math.sin(t * 4 + b.phase) * 0.03); // very gentle wag
       
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
