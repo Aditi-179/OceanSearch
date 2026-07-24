@@ -16,7 +16,8 @@ const ALL_SPECIES = [
 export default function DiscoveryLog() {
   const [isOpen, setIsOpen] = useState(false);
   const [discovered, setDiscovered] = useState<string[]>([]);
-  
+  const [toast, setToast] = useState<{ id: string, name: string } | null>(null);
+
   useEffect(() => {
     let animationFrameId: number;
     const checkLog = () => {
@@ -29,10 +30,50 @@ export default function DiscoveryLog() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [discovered.length]);
 
+  // Automated Random AI Scanner Loop
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Find undiscovered species
+      const undiscovered = ALL_SPECIES.filter(s => !oceanState.discoveredSpecies.includes(s.id));
+      if (undiscovered.length > 0) {
+        // Pick random species and unlock it globally
+        const randomSpecies = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+        oceanState.discoveredSpecies.push(randomSpecies.id);
+        
+        // Trigger UI Alert Toast
+        setToast({ id: Math.random().toString(), name: randomSpecies.id });
+        
+        // Hide toast after 4s
+        setTimeout(() => setToast(null), 4000);
+      }
+    }, 15000); // Randomly trigger a new scan every 15 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const completion = Math.round((discovered.length / ALL_SPECIES.length) * 100);
 
   return (
     <div className="fixed top-24 right-4 z-[90]">
+      {/* Global AI Discovery Alert Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, y: -50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -50, x: "-50%" }}
+            className="fixed top-12 left-1/2 bg-black/80 backdrop-blur-md border border-cyan-glow p-4 rounded-xl shadow-[0_0_30px_rgba(67,247,255,0.3)] z-[100] flex items-center gap-4"
+          >
+            <CheckCircle className="w-8 h-8 text-cyan-glow animate-pulse" />
+            <div>
+              <div className="text-xs font-mono text-cyan-glow tracking-widest">AI SCANNER TRIGGERED</div>
+              <div className="text-lg font-bold text-white whitespace-nowrap">{toast.name} added to Field Journal</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
