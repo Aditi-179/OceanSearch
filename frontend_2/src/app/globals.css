@@ -63,6 +63,14 @@
 }
 
 @layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
   .text-glow {
     text-shadow: 0 0 20px rgba(67, 247, 255, 0.5);
   }

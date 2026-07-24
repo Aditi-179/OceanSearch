@@ -19,7 +19,7 @@ import {
 
 export default function DashboardPage() {
   return (
-    <div className="flex-1 overflow-y-auto bg-[#0B1120] text-slate-300 font-sans p-6 space-y-8 scrollbar-hide">
+    <div className="flex-1 bg-[#0B1120] text-slate-300 font-sans p-6 space-y-8">
       
       {/* ---------------- ROW 1 ---------------- */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
