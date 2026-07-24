@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DeepSea Guardian | AI Ocean Conservation",
+  title: "OceanSearch| AI Ocean Conservation",
   description: "An AI-powered ocean conservation platform for REEF. Protect what we can't see.",
 };
 
