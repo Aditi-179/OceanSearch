@@ -22,6 +22,11 @@ export default function FeatureCard({ title, description, icon, delay = 0 }: Fea
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative group w-full h-full rounded-2xl p-[1px] overflow-hidden"
+      style={{
+        // Each card floats at a slightly different phase for an organic feel
+        animation: `float-drift ${5 + delay * 2}s ease-in-out infinite`,
+        animationDelay: `${delay * 1.5}s`,
+      }}
     >
       {/* Animated Border Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />

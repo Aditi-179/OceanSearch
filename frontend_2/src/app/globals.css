@@ -80,4 +80,61 @@
     border: 1px solid rgba(67, 247, 255, 0.3);
     box-shadow: 0 0 20px rgba(67, 247, 255, 0.15);
   }
+
+  /* Underwater vignette — deepens with scroll via JS class */
+  .depth-vignette {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      transparent 40%,
+      rgba(0, 5, 15, 0.55) 100%
+    );
+  }
+
+  /* Chromatic aberration overlay applied via CSS filter on deep sections */
+  .chroma-ab {
+    filter: blur(0px);
+    transition: filter 0.5s ease;
+  }
+
+  /* Floating drift for UI elements */
+  .float-drift {
+    animation: float-drift 6s ease-in-out infinite;
+  }
+  @keyframes float-drift {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Sonar ring ripple on click */
+  .ripple-ring {
+    position: fixed;
+    border-radius: 50%;
+    border: 2px solid rgba(67, 247, 255, 0.7);
+    pointer-events: none;
+    z-index: 9999;
+    animation: sonar-expand 0.8s ease-out forwards;
+  }
+  @keyframes sonar-expand {
+    from { width: 0; height: 0; opacity: 1; }
+    to { width: 180px; height: 180px; opacity: 0; }
+  }
+
+  /* Pressure overlay — subtle lines of depth */
+  .pressure-lines {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent,
+      transparent 48px,
+      rgba(67, 247, 255, 0.015) 48px,
+      rgba(67, 247, 255, 0.015) 50px
+    );
+  }
 }

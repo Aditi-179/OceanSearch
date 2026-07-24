@@ -18,6 +18,23 @@ export default function Navbar() {
   // Transform depth based on scroll, max depth around 10000m for abyss
   const depth = useTransform(scrollY, [0, 5000], [0, 10994]); 
   
+  // Compute depth zone label
+  const [zone, setZone] = useState("Surface");
+  
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = latest / (maxScroll || 1);
+      if (progress < 0.12) setZone("Surface · 0m");
+      else if (progress < 0.28) setZone("Shallow Reef · 50m");
+      else if (progress < 0.45) setZone("Coral Forest · 150m");
+      else if (progress < 0.60) setZone("Twilight Zone · 400m");
+      else if (progress < 0.75) setZone("Midnight Zone · 700m");
+      else if (progress < 0.90) setZone("Abyss · 1000m");
+      else setZone("Hadal Zone · 10,000m");
+    });
+  }, [scrollY]);
+
   return (
     <motion.nav
       className={cn(
@@ -30,6 +47,8 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-cyan-glow/20 border border-cyan-glow/50 text-cyan-glow">
             <Droplet className="w-5 h-5 fill-current" />
+            {/* Bio-scan pulse — grows stronger at depth */}
+            <div className="absolute inset-0 rounded-full border border-cyan-glow/40 animate-ping" style={{ animationDuration: '2.5s' }} />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">
             DeepSea<span className="font-light text-cyan-glow">Guardian</span>
@@ -44,12 +63,12 @@ export default function Navbar() {
           <NavLink href="#take-action">Take Action</NavLink>
         </div>
 
-        {/* Depth Indicator */}
-        <div className="hidden md:flex flex-col items-end">
-          <span className="text-xs text-white/50 uppercase tracking-widest font-mono">Current Depth</span>
-          <motion.div className="text-lg font-mono text-cyan-glow font-bold flex items-center">
-            {/* Custom component to animate the number formatting */}
-            <NumberCounter value={depth} />m
+        {/* Depth HUD */}
+        <div className="hidden md:flex flex-col items-end gap-1">
+          <span className="text-[10px] text-white/40 uppercase tracking-widest font-mono">{zone}</span>
+          <motion.div className="text-lg font-mono text-cyan-glow font-bold flex items-center gap-1">
+            <NumberCounter value={depth} />
+            <span className="text-xs text-cyan-glow/70">m</span>
           </motion.div>
         </div>
       </div>
