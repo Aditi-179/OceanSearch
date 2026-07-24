@@ -395,24 +395,26 @@ export default function DashboardPage() {
           </div>
           
           <div className="flex-1 p-6 overflow-y-auto scrollbar-hide relative">
-            {/* Vertical Line */}
-            <div className="absolute left-9 top-8 bottom-8 w-px bg-slate-800" />
+            {/* Vertical Line — aligned to dot centers: 24px padding + 6px (half of w-3) = 30px */}
+            <div className="absolute left-[30px] top-8 bottom-8 w-px bg-slate-800" />
             
             <div className="space-y-6">
               {[
                 { time: "10:24 AM", title: "Drone RX-7A launched", desc: "Indian Ocean Sector 7", color: "bg-blue-500" },
                 { time: "10:21 AM", title: "Plastic bottle detected", desc: "Confidence: 91%", color: "bg-red-500" },
-                { time: "10:12 AM", title: "Whale sighting recorded", desc: "Blue Whale detected", color: "bg-blue-500" },
-                { time: "10:15 AM", title: "Coral restoration completed", desc: "Ocean G8", color: "bg-[#10b981]" }
+                { time: "10:15 AM", title: "Coral restoration completed", desc: "Ocean G8", color: "bg-[#10b981]" },
+                { time: "10:12 AM", title: "Whale sighting recorded", desc: "Blue Whale detected", color: "bg-blue-500" }
               ].map((ev, i) => (
-                <div key={i} className="flex gap-4 relative z-10">
-                  <div className="flex flex-col items-center gap-2 mt-1">
-                    <div className={`w-3 h-3 rounded-full ${ev.color} ring-4 ring-[#0B1120]`} />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-mono text-slate-500">{ev.time}</span>
-                    <h4 className="text-sm font-bold text-white mt-1">{ev.title}</h4>
-                    <p className="text-xs text-slate-400 mt-1">{ev.desc}</p>
+                <div key={i} className="relative z-10">
+                  <span className="text-[10px] font-mono text-slate-500 block mb-1 ml-7">{ev.time}</span>
+                  <div className="flex items-start gap-4">
+                    <div className="shrink-0 mt-0.5">
+                      <div className={`w-3 h-3 rounded-full ${ev.color} ring-4 ring-[#0B1120] shadow-[0_0_8px_rgba(0,0,0,0.4)]`} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{ev.title}</h4>
+                      <p className="text-xs text-slate-400 mt-1">{ev.desc}</p>
+                    </div>
                   </div>
                 </div>
               ))}

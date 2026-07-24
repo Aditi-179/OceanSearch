@@ -72,7 +72,7 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Menu Items */}
-      <div className="flex-1 px-4 py-4 space-y-2 overflow-y-auto scrollbar-hide">
+      <div className="flex-1 px-4 py-4 space-y-2 overflow-y-auto scrollbar-hide" data-lenis-prevent="" suppressHydrationWarning>
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
