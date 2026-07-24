@@ -9,46 +9,50 @@ interface Boid {
   pos: THREE.Vector3;
   vel: THREE.Vector3;
   phase: number;
+  size: number;
+  // Smoothed orientation quaternion to prevent snapping
+  quat: THREE.Quaternion;
 }
 
-// Boids parameters (made much more dynamic and alive)
-const NUM_BOIDS = 180;
-const MAX_SPEED = 3;
-const MAX_FORCE = 0.02;
+// Boids parameters
+const NUM_BOIDS = 150;
+const MAX_SPEED = 2.5;
+const MIN_SPEED = 0.4;
+const MAX_FORCE = 0.018;
 const NEIGHBOR_DIST = 4;
-const DESIRED_SEPARATION = 1.5;
+const DESIRED_SEPARATION = 1.8;
 
 function makeFishGeometry(scale = 1): THREE.BufferGeometry {
   const shape = new THREE.Shape();
   // Nose
   shape.moveTo(0.5 * scale, 0);
-  // Top curve to fin
-  shape.bezierCurveTo(0.3 * scale, 0.15 * scale, 0.1 * scale, 0.25 * scale, 0, 0.25 * scale);
-  // Top fin
-  shape.lineTo(-0.1 * scale, 0.4 * scale);
-  shape.lineTo(-0.15 * scale, 0.2 * scale);
+  // Top curve — rounder, more organic
+  shape.bezierCurveTo(0.35 * scale, 0.12 * scale, 0.15 * scale, 0.2 * scale, 0, 0.2 * scale);
+  // Dorsal fin
+  shape.lineTo(-0.08 * scale, 0.35 * scale);
+  shape.lineTo(-0.15 * scale, 0.18 * scale);
   // Curve to tail base
-  shape.bezierCurveTo(-0.3 * scale, 0.15 * scale, -0.4 * scale, 0.05 * scale, -0.45 * scale, 0);
-  // Top tail fin
-  shape.lineTo(-0.6 * scale, 0.25 * scale);
-  shape.lineTo(-0.6 * scale, -0.25 * scale);
-  // Bottom tail fin
-  shape.lineTo(-0.45 * scale, 0);
-  // Curve to bottom belly
-  shape.bezierCurveTo(-0.4 * scale, -0.05 * scale, -0.3 * scale, -0.15 * scale, -0.15 * scale, -0.2 * scale);
-  // Bottom fin
-  shape.lineTo(-0.1 * scale, -0.35 * scale);
-  shape.lineTo(0, -0.25 * scale);
+  shape.bezierCurveTo(-0.28 * scale, 0.12 * scale, -0.38 * scale, 0.04 * scale, -0.42 * scale, 0);
+  // Tail fork
+  shape.lineTo(-0.58 * scale, 0.2 * scale);
+  shape.lineTo(-0.5 * scale, 0);
+  shape.lineTo(-0.58 * scale, -0.2 * scale);
+  shape.lineTo(-0.42 * scale, 0);
+  // Bottom belly curve
+  shape.bezierCurveTo(-0.38 * scale, -0.04 * scale, -0.28 * scale, -0.12 * scale, -0.15 * scale, -0.18 * scale);
+  // Pelvic fin
+  shape.lineTo(-0.08 * scale, -0.3 * scale);
+  shape.lineTo(0, -0.2 * scale);
   // Curve back to nose
-  shape.bezierCurveTo(0.1 * scale, -0.25 * scale, 0.3 * scale, -0.15 * scale, 0.5 * scale, 0);
+  shape.bezierCurveTo(0.15 * scale, -0.2 * scale, 0.35 * scale, -0.12 * scale, 0.5 * scale, 0);
 
-  const extrudeSettings = { 
-    depth: 0.06 * scale, 
-    bevelEnabled: true, 
-    bevelSegments: 2, 
-    steps: 1, 
-    bevelSize: 0.02 * scale, 
-    bevelThickness: 0.03 * scale 
+  const extrudeSettings = {
+    depth: 0.08 * scale,
+    bevelEnabled: true,
+    bevelSegments: 3,
+    steps: 1,
+    bevelSize: 0.025 * scale,
+    bevelThickness: 0.04 * scale
   };
   const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
   geo.center();
@@ -56,67 +60,91 @@ function makeFishGeometry(scale = 1): THREE.BufferGeometry {
 }
 
 const FISH_COLORS = [
-  "#00d4ff", // cyan tang
-  "#ff7e2e", // clownfish orange
+  "#00c8ff", // electric blue tang
+  "#ff6b2e", // clownfish orange
   "#ffd166", // yellow tang
+  "#39e88c", // parrotfish green
+  "#d68fff", // purple chromis
 ];
 
 export default function BoidsSwarm() {
   const { viewport } = useThree();
   const meshRef = useRef<THREE.InstancedMesh>(null!);
-  
+
   // Shared geometry and material
-  const geometry = useMemo(() => makeFishGeometry(0.5), []);
+  const geometry = useMemo(() => makeFishGeometry(0.45), []);
   const material = useMemo(() => new THREE.MeshStandardMaterial({
     color: "#ffffff",
-    roughness: 0.4,
-    metalness: 0.1,
+    roughness: 0.35,
+    metalness: 0.15,
     side: THREE.DoubleSide,
     transparent: true,
     opacity: 1,
     fog: true,
   }), []);
 
-  const boids = useMemo<Boid[]>(() => 
+  const boids = useMemo<Boid[]>(() =>
     Array.from({ length: NUM_BOIDS }, () => ({
       pos: new THREE.Vector3(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 8 + 6 // Spawn closely to camera (Z between 2 and 10) so they aren't lost in fog
+        (Math.random() - 0.5) * 28,
+        (Math.random() - 0.5) * 14,
+        (Math.random() - 0.5) * 8 + 6
       ),
       vel: new THREE.Vector3(
         (Math.random() - 0.5) * MAX_SPEED,
-        (Math.random() - 0.5) * MAX_SPEED,
-        (Math.random() - 0.5) * MAX_SPEED
+        (Math.random() - 0.5) * MAX_SPEED * 0.4,
+        (Math.random() - 0.5) * MAX_SPEED * 0.2
       ),
       phase: Math.random() * Math.PI * 2,
-    })), 
+      size: 0.7 + Math.random() * 0.6,
+      quat: new THREE.Quaternion(),
+    })),
   []);
 
-  // We assign colors to instances once
+  // Assign colors to instances once
   const colorArray = useMemo(() => {
     const arr = new Float32Array(NUM_BOIDS * 3);
     const color = new THREE.Color();
     for (let i = 0; i < NUM_BOIDS; i++) {
       color.set(FISH_COLORS[i % FISH_COLORS.length]);
+      // Slight random variation per fish for realism
+      color.offsetHSL(
+        (Math.random() - 0.5) * 0.04,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.08
+      );
       color.toArray(arr, i * 3);
     }
     return arr;
   }, []);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  
+
+  // Pre-allocate reusable vectors (zero GC pressure in the hot loop)
+  const _sep = useMemo(() => new THREE.Vector3(), []);
+  const _ali = useMemo(() => new THREE.Vector3(), []);
+  const _coh = useMemo(() => new THREE.Vector3(), []);
+  const _diff = useMemo(() => new THREE.Vector3(), []);
+  const _cursor = useMemo(() => new THREE.Vector3(), []);
+  const _cursorAvoid = useMemo(() => new THREE.Vector3(), []);
+  const _forward = useMemo(() => new THREE.Vector3(), []);
+  const _targetQuat = useMemo(() => new THREE.Quaternion(), []);
+  const _lookMat = useMemo(() => new THREE.Matrix4(), []);
+  const _up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+
   // Throttle scanner updates
   const scanTimer = useRef(0);
 
-  useFrame((state, delta) => {
+  useFrame((state, rawDelta) => {
     if (!meshRef.current) return;
+
+    // Clamp delta to prevent teleportation on tab-switch or long frames
+    const delta = Math.min(rawDelta, 0.05);
     const t = state.clock.elapsedTime;
-    
-    // Colorful fish are fully visible at the Surface & Shallows, and fade out by the Twilight Zone
+
+    // Visibility based on depth
     let visibility = 1.0;
     if (oceanState.scroll > 0.15) {
-      // Start fading out smoothly in the Shallows (0.15) until completely gone before Twilight Zone (0.5)
       visibility = THREE.MathUtils.mapLinear(oceanState.scroll, 0.15, 0.5, 1, 0);
     }
     visibility = THREE.MathUtils.clamp(visibility, 0, 1);
@@ -130,86 +158,103 @@ export default function BoidsSwarm() {
 
     const mX = (oceanState.mouseX * viewport.width) / 2;
     const mY = (oceanState.mouseY * viewport.height) / 2;
-    const cursor = new THREE.Vector3(mX, mY, 0);
+    _cursor.set(mX, mY, 0);
 
     for (let i = 0; i < NUM_BOIDS; i++) {
       const b = boids[i];
-      const sep = new THREE.Vector3();
-      const ali = new THREE.Vector3();
-      const coh = new THREE.Vector3();
+      _sep.set(0, 0, 0);
+      _ali.set(0, 0, 0);
+      _coh.set(0, 0, 0);
       let count = 0;
 
       for (let j = 0; j < NUM_BOIDS; j++) {
         if (i === j) continue;
         const other = boids[j];
         const dist = b.pos.distanceTo(other.pos);
-        
+
         if (dist > 0 && dist < NEIGHBOR_DIST) {
           if (dist < DESIRED_SEPARATION) {
-            const diff = b.pos.clone().sub(other.pos).normalize().divideScalar(dist);
-            sep.add(diff);
+            _diff.copy(b.pos).sub(other.pos).normalize().divideScalar(dist);
+            _sep.add(_diff);
           }
-          ali.add(other.vel);
-          coh.add(other.pos);
+          _ali.add(other.vel);
+          _coh.add(other.pos);
           count++;
         }
       }
 
       if (count > 0) {
-        sep.divideScalar(count).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE * 1.5);
-        ali.divideScalar(count).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE);
-        coh.divideScalar(count).sub(b.pos).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE);
+        _sep.divideScalar(count).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE * 1.5);
+        _ali.divideScalar(count).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE);
+        _coh.divideScalar(count).sub(b.pos).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE);
       }
 
-      // Cursor avoid
-      const cDist = b.pos.distanceTo(cursor);
-      const cursorAvoid = new THREE.Vector3();
+      // Cursor avoidance
+      const cDist = b.pos.distanceTo(_cursor);
+      _cursorAvoid.set(0, 0, 0);
       if (cDist < 5) {
-        cursorAvoid.copy(b.pos).sub(cursor).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE * 3);
+        _cursorAvoid.copy(b.pos).sub(_cursor).normalize().multiplyScalar(MAX_SPEED).sub(b.vel).clampLength(0, MAX_FORCE * 3);
       }
 
-      b.vel.add(sep.multiplyScalar(1.5));
-      b.vel.add(ali.multiplyScalar(1.0));
-      b.vel.add(coh.multiplyScalar(1.0));
-      b.vel.add(cursorAvoid.multiplyScalar(2.0));
+      b.vel.add(_sep.multiplyScalar(1.5));
+      b.vel.add(_ali.multiplyScalar(1.0));
+      b.vel.add(_coh.multiplyScalar(1.0));
+      b.vel.add(_cursorAvoid.multiplyScalar(2.0));
 
-      // Boundary avoid (soften these so velocity doesn't snap)
-      if (b.pos.x > 18) b.vel.x -= 0.02;
-      if (b.pos.x < -18) b.vel.x += 0.02;
-      if (b.pos.y > 10) b.vel.y -= 0.02;
-      if (b.pos.y < -10) b.vel.y += 0.02;
-      if (b.pos.z > 10) b.vel.z -= 0.02; // keep close
-      if (b.pos.z < 2) b.vel.z += 0.02; // don't go too deep into the dark fog
+      // Soft boundary steering (gradual force, not hard snapping)
+      const boundForce = 0.015;
+      if (b.pos.x > 16) b.vel.x -= boundForce * (b.pos.x - 16);
+      if (b.pos.x < -16) b.vel.x += boundForce * (-16 - b.pos.x) * -1;
+      if (b.pos.y > 8) b.vel.y -= boundForce * (b.pos.y - 8);
+      if (b.pos.y < -8) b.vel.y += boundForce * (-8 - b.pos.y) * -1;
+      if (b.pos.z > 10) b.vel.z -= boundForce * (b.pos.z - 10);
+      if (b.pos.z < 2) b.vel.z += boundForce * (2 - b.pos.z);
 
-      // Dampen vertical movement slightly to prefer horizontal swimming
-      b.vel.y *= 0.98;
+      // Dampen vertical movement — fish swim mostly horizontal
+      b.vel.y *= 0.97;
+      b.vel.z *= 0.99;
 
-      b.vel.clampLength(0, MAX_SPEED);
-      b.pos.add(b.vel.clone().multiplyScalar(delta));
+      // Enforce min/max speed so fish never completely stop or teleport
+      const speed = b.vel.length();
+      if (speed > MAX_SPEED) {
+        b.vel.multiplyScalar(MAX_SPEED / speed);
+      } else if (speed < MIN_SPEED && speed > 0.001) {
+        b.vel.multiplyScalar(MIN_SPEED / speed);
+      }
 
-      // Update instance matrix
+      b.pos.addScaledVector(b.vel, delta);
+
+      // ── Smooth orientation via quaternion slerp (no snapping) ──
       dummy.position.copy(b.pos);
-      
-      // Smoothly look in direction of travel (using Z axis)
-      if (b.vel.lengthSq() > 0.001) {
-        dummy.lookAt(b.pos.clone().add(b.vel));
+      dummy.scale.setScalar(b.size);
+
+      if (b.vel.lengthSq() > 0.01) {
+        _forward.copy(b.pos).add(b.vel);
+        _lookMat.lookAt(b.pos, _forward, _up);
+        _targetQuat.setFromRotationMatrix(_lookMat);
+        // Smooth slerp — lower = smoother turning
+        b.quat.slerp(_targetQuat, 0.06);
       }
-      
-      // Soft wobble body to simulate active swimming
-      dummy.rotateY(Math.sin(t * 4 + b.phase) * 0.03); // very gentle wag
-      
+
+      dummy.quaternion.copy(b.quat);
+
+      // Realistic swimming undulation — gentle S-curve body wag
+      const wagFreq = 5 + speed * 1.5; // faster fish wag faster
+      const wagAmp = 0.08 + speed * 0.02;
+      dummy.rotateY(Math.sin(t * wagFreq + b.phase) * wagAmp);
+      // Slight roll into turns for realism
+      dummy.rotateZ(Math.sin(t * wagFreq * 0.5 + b.phase) * 0.03);
+
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
-      
-      // AI Scanning Logic (Throttle to 5Hz to save performance)
+
+      // AI Scanning Logic (Throttle to 5Hz)
       if (t - scanTimer.current > 0.2) {
         const screenPos = b.pos.clone().project(state.camera);
-        // If a boid is very close to the center of the screen
         if (Math.abs(screenPos.x) < 0.05 && Math.abs(screenPos.y) < 0.05 && screenPos.z < 1) {
-          // Convert NDC to pixel coordinates for the HUD
           const px = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
           const py = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
-          
+
           oceanState.scanTarget = {
             id: `fish-${i}`,
             name: "Blue Tang",
@@ -220,22 +265,21 @@ export default function BoidsSwarm() {
             depth: `${Math.floor(oceanState.scroll * 200)}m`,
             screenPos: { x: px, y: py }
           };
-          
-          // Track discovery
+
           if (!oceanState.discoveredSpecies.includes("Blue Tang")) {
             oceanState.discoveredSpecies.push("Blue Tang");
           }
-          
+
           scanTimer.current = t;
         }
       }
     }
-    
+
     // Clear scan target if nothing found
     if (t - scanTimer.current > 0.5) {
       oceanState.scanTarget = null;
     }
-    
+
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
