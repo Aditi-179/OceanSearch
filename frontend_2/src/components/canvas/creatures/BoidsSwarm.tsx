@@ -19,16 +19,39 @@ const NEIGHBOR_DIST = 4;
 const DESIRED_SEPARATION = 1.5;
 
 function makeFishGeometry(scale = 1): THREE.BufferGeometry {
-  const points = [];
-  // Creates a curve for the Lathe: radius is small at ends, wide in middle
-  for (let i = 0; i <= 12; i++) {
-    const t = i / 12;
-    // x is radius, y is height along the axis of the lathe (Y axis)
-    points.push(new THREE.Vector2(Math.sin(t * Math.PI) * 0.15 * scale, (t - 0.5) * 0.8 * scale));
-  }
-  const geo = new THREE.LatheGeometry(points, 12);
-  // LatheGeometry creates along Y axis. Rotate to point along Z axis for lookAt()
-  geo.rotateX(Math.PI / 2); 
+  const shape = new THREE.Shape();
+  // Nose
+  shape.moveTo(0.5 * scale, 0);
+  // Top curve to fin
+  shape.bezierCurveTo(0.3 * scale, 0.15 * scale, 0.1 * scale, 0.25 * scale, 0, 0.25 * scale);
+  // Top fin
+  shape.lineTo(-0.1 * scale, 0.4 * scale);
+  shape.lineTo(-0.15 * scale, 0.2 * scale);
+  // Curve to tail base
+  shape.bezierCurveTo(-0.3 * scale, 0.15 * scale, -0.4 * scale, 0.05 * scale, -0.45 * scale, 0);
+  // Top tail fin
+  shape.lineTo(-0.6 * scale, 0.25 * scale);
+  shape.lineTo(-0.6 * scale, -0.25 * scale);
+  // Bottom tail fin
+  shape.lineTo(-0.45 * scale, 0);
+  // Curve to bottom belly
+  shape.bezierCurveTo(-0.4 * scale, -0.05 * scale, -0.3 * scale, -0.15 * scale, -0.15 * scale, -0.2 * scale);
+  // Bottom fin
+  shape.lineTo(-0.1 * scale, -0.35 * scale);
+  shape.lineTo(0, -0.25 * scale);
+  // Curve back to nose
+  shape.bezierCurveTo(0.1 * scale, -0.25 * scale, 0.3 * scale, -0.15 * scale, 0.5 * scale, 0);
+
+  const extrudeSettings = { 
+    depth: 0.06 * scale, 
+    bevelEnabled: true, 
+    bevelSegments: 2, 
+    steps: 1, 
+    bevelSize: 0.02 * scale, 
+    bevelThickness: 0.03 * scale 
+  };
+  const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  geo.center();
   return geo;
 }
 
@@ -44,8 +67,10 @@ export default function BoidsSwarm() {
   
   // Shared geometry and material
   const geometry = useMemo(() => makeFishGeometry(0.5), []);
-  const material = useMemo(() => new THREE.MeshBasicMaterial({
+  const material = useMemo(() => new THREE.MeshStandardMaterial({
     color: "#ffffff",
+    roughness: 0.4,
+    metalness: 0.1,
     side: THREE.DoubleSide,
     transparent: true,
     opacity: 1,
