@@ -42,6 +42,7 @@ export default function DashboardPage() {
     },
   ];
 
+  return (
     <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden z-10">
       {/* Top Bar: IoT Telemetry */}
       <div className="h-20 shrink-0 grid grid-cols-3 gap-4">
