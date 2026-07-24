@@ -107,7 +107,7 @@ Critical AI detections trigger fullscreen warning animations.
 # 📂 Project Structure
 
 ```
-DeepSeaGuardian/
+Ocean Search/
 │
 ├── public/
 ├── src/

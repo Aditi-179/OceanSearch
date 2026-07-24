@@ -13,15 +13,22 @@ interface Boid {
 
 // Boids parameters (made much more dynamic and alive)
 const NUM_BOIDS = 180;
-const MAX_SPEED = 7;
-const MAX_FORCE = 0.15;
+const MAX_SPEED = 6;
+const MAX_FORCE = 0.04;
 const NEIGHBOR_DIST = 4;
 const DESIRED_SEPARATION = 1.5;
 
 function makeFishGeometry(scale = 1): THREE.BufferGeometry {
-  // A sleek cone rotated sideways makes a perfect low-poly fish
-  const geo = new THREE.ConeGeometry(0.12 * scale, 0.8 * scale, 4);
-  geo.rotateZ(-Math.PI / 2); // Point it along X axis
+  const points = [];
+  // Creates a curve for the Lathe: radius is small at ends, wide in middle
+  for (let i = 0; i <= 12; i++) {
+    const t = i / 12;
+    // x is radius, y is height along the axis of the lathe (Y axis)
+    points.push(new THREE.Vector2(Math.sin(t * Math.PI) * 0.15 * scale, (t - 0.5) * 0.8 * scale));
+  }
+  const geo = new THREE.LatheGeometry(points, 12);
+  // LatheGeometry creates along Y axis. Rotate to point along Z axis for lookAt()
+  geo.rotateX(Math.PI / 2); 
   return geo;
 }
 
@@ -150,28 +157,30 @@ export default function BoidsSwarm() {
         }
       }
 
-      if (b.pos.x > 18) b.vel.x -= 0.1;
-      if (b.pos.x < -18) b.vel.x += 0.1;
-      if (b.pos.y > 10) b.vel.y -= 0.1;
-      if (b.pos.y < -10) b.vel.y += 0.1;
-      if (b.pos.z > 10) b.vel.z -= 0.1; // keep close
-      if (b.pos.z < 2) b.vel.z += 0.1; // don't go too deep into the dark fog
+      // Boundary avoid (soften these so velocity doesn't snap)
+      if (b.pos.x > 18) b.vel.x -= 0.02;
+      if (b.pos.x < -18) b.vel.x += 0.02;
+      if (b.pos.y > 10) b.vel.y -= 0.02;
+      if (b.pos.y < -10) b.vel.y += 0.02;
+      if (b.pos.z > 10) b.vel.z -= 0.02; // keep close
+      if (b.pos.z < 2) b.vel.z += 0.02; // don't go too deep into the dark fog
+
+      // Dampen vertical movement slightly to prefer horizontal swimming
+      b.vel.y *= 0.98;
 
       b.vel.clampLength(0, MAX_SPEED);
       b.pos.add(b.vel.clone().multiplyScalar(delta));
 
       // Update instance matrix
       dummy.position.copy(b.pos);
-      // Point fish in direction of travel. We flip x scale if moving left because our geometry points right.
-      const isMovingLeft = b.vel.x < 0;
-      dummy.scale.set(isMovingLeft ? -1 : 1, 1, 1);
       
-      // Add slight z-rotation to simulate swimming up/down
-      dummy.rotation.set(0, 0, (b.vel.y * 0.15) * (isMovingLeft ? -1 : 1));
+      // Smoothly look in direction of travel (using Z axis)
+      if (b.vel.lengthSq() > 0.001) {
+        dummy.lookAt(b.pos.clone().add(b.vel));
+      }
       
-      // Fast wobble body to simulate active swimming
-      dummy.rotation.y += Math.sin(t * 15 + b.phase) * 0.15; // side to side wag
-      dummy.rotation.z += Math.cos(t * 12 + b.phase) * 0.05; // slight roll
+      // Soft wobble body to simulate active swimming
+      dummy.rotateY(Math.sin(t * 8 + b.phase) * 0.06); // very gentle wag
       
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
