@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   List,
   CaretLeft,
@@ -14,12 +16,13 @@ import {
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const pathname = usePathname();
 
   const navLinks = [
-    { name: "Dashboard", icon: MapTrifold },
-    { name: "AI Vision", icon: Scan },
-    { name: "Telemetry", icon: Waveform },
-    { name: "Settings", icon: Gear },
+    { name: "Dashboard", icon: MapTrifold, href: "/dashboard" },
+    { name: "AI Vision", icon: Scan, href: "/research" }, // Assuming research is AI Vision given current structure
+    { name: "Telemetry", icon: Waveform, href: "/dashboard" },
+    { name: "Settings", icon: Gear, href: "/dashboard/settings" },
   ];
 
   const fleet = [
@@ -59,33 +62,41 @@ export default function Sidebar() {
 
       {/* Navigation Links */}
       <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
-        {navLinks.map((link) => (
-          <button
-            key={link.name}
-            className={`w-full flex items-center ${
-              isExpanded ? "justify-start px-3" : "justify-center px-0"
-            } py-3 rounded-lg text-slate-300 hover:text-[#00F0FF] hover:bg-slate-800/50 transition-all group`}
-          >
-            <link.icon
-              size={24}
-              weight="duotone"
-              className="shrink-0 group-hover:text-[#00F0FF] transition-colors"
-            />
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="ml-3 whitespace-nowrap"
-                >
-                  {link.name}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        ))}
+        {navLinks.map((link) => {
+          const isActive = pathname === link.href;
+          return (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={`w-full flex items-center ${
+                isExpanded ? "justify-start px-3" : "justify-center px-0"
+              } py-3 rounded-lg transition-all group ${
+                isActive 
+                  ? "bg-slate-800/80 text-[#00F0FF]" 
+                  : "text-slate-300 hover:text-[#00F0FF] hover:bg-slate-800/50"
+              }`}
+            >
+              <link.icon
+                size={24}
+                weight="duotone"
+                className={`shrink-0 transition-colors ${isActive ? "text-[#00F0FF]" : "group-hover:text-[#00F0FF]"}`}
+              />
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="ml-3 whitespace-nowrap"
+                  >
+                    {link.name}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Bottom Section (Fleet Status) */}
