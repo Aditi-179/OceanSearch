@@ -8,17 +8,24 @@ interface FeatureCardProps {
   description: string;
   icon: React.ReactNode;
   delay?: number;
+  isScrollControlled?: boolean;
 }
 
-export default function FeatureCard({ title, description, icon, delay = 0 }: FeatureCardProps) {
+export default function FeatureCard({ title, description, icon, delay = 0, isScrollControlled = false }: FeatureCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const motionProps = isScrollControlled
+    ? {}
+    : {
+        initial: { opacity: 0, y: 50 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true as const, margin: "-100px" },
+        transition: { duration: 0.8, delay, ease: "easeOut" as const },
+      };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      {...motionProps}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative group w-full h-full rounded-2xl p-[1px] overflow-hidden"

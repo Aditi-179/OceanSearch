@@ -276,7 +276,7 @@ export default function EcosystemEngine() {
         camera={{ position: [0, 0, 12], fov: 50, near: 0.1, far: 100 }}
         dpr={[1, 1.5]}
         gl={{
-          antialias: false,
+          antialias: true,
           alpha: false,
           powerPreference: "high-performance",
         }}

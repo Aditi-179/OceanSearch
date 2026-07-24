@@ -53,8 +53,8 @@ export default function DashboardPage() {
     
     gsap.fromTo(
       ".gsap-gauge",
-      { strokeDashoffset: 125 },
-      { strokeDashoffset: 0, duration: 1.5, ease: "bounce.out", delay: 0.5 }
+      { strokeDasharray: 125.66, strokeDashoffset: 125.66 },
+      { strokeDashoffset: 125.66 * (1 - 0.72), duration: 1.5, ease: "bounce.out", delay: 0.5 }
     );
   }, { scope: svgScope });
 
@@ -179,7 +179,7 @@ export default function DashboardPage() {
                 {/* Background arc */}
                 <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1E293B" strokeWidth="12" strokeLinecap="round" />
                 {/* Progress arc (Good score, mostly green/cyan) */}
-                <path className="gsap-gauge" d="M 10 50 A 40 40 0 0 1 82 20" fill="none" stroke="url(#gradient)" strokeWidth="12" strokeLinecap="round" strokeDasharray="125" />
+                <path className="gsap-gauge" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gradient)" strokeWidth="12" strokeLinecap="round" />
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#0ea5e9" />
@@ -207,12 +207,12 @@ export default function DashboardPage() {
                     <span className="text-slate-400">{m.label}</span>
                     <span className="text-white">{m.val}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="relative w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${m.reverse ? m.val : m.val}%` }}
                       transition={{ duration: 1.5, delay: 0.5 + (i * 0.1), ease: "easeOut" }}
-                      className={`h-full ${m.color} rounded-full`} 
+                      className={`absolute top-0 left-0 bottom-0 ${m.color}`} 
                     />
                   </div>
                 </div>

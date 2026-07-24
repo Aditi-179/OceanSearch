@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import FeatureCard from "@/components/FeatureCard";
+import ShallowReefThreats from "@/components/ShallowReefThreats";
 import Timeline from "@/components/Timeline";
 import NGODashboard from "@/components/NGODashboard";
 import DepthMeter from "@/components/DepthMeter";
@@ -11,7 +11,6 @@ import ScannerHUD from "@/components/ScannerHUD";
 import LegendaryEncounters from "@/components/LegendaryEncounters";
 import DiscoveryLog from "@/components/DiscoveryLog";
 import ChapterDisplay from "@/components/ChapterDisplay";
-import { ThermometerSun, Trash2, Anchor, FishOff } from "lucide-react";
 
 export default function Home() {
   return (
@@ -63,52 +62,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── SHALLOW REEF — existing threats section (unchanged) ─────────── */}
-        <section
-          id="threats"
-          className="relative w-full min-h-[100vh] flex items-center justify-center py-32 text-white"
-        >
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-20">
-              <span className="text-xs uppercase tracking-[0.3em] text-cyan-glow/60 font-mono block mb-3">
-                Shallow Reef · 50m
-              </span>
-              <h2 className="text-4xl md:text-6xl font-light mb-6 drop-shadow-lg">
-                The <span className="font-bold">Shallows</span>
-              </h2>
-              <p className="text-xl max-w-2xl mx-auto font-light text-white/80 drop-shadow-md">
-                As we descend, the light begins to fade. Here, coral reefs face their greatest
-                threats from temperature changes and pollution.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FeatureCard
-                title="Bleaching"
-                description="Rising temperatures cause corals to expel the algae living in their tissues, turning them completely white."
-                icon={<ThermometerSun strokeWidth={1.5} className="w-full h-full" />}
-                delay={0}
-              />
-              <FeatureCard
-                title="Microplastics"
-                description="Tiny plastic particles are ingested by marine life, entering the food chain and devastating ecosystems."
-                icon={<Trash2 strokeWidth={1.5} className="w-full h-full" />}
-                delay={0.2}
-              />
-              <FeatureCard
-                title="Overfishing"
-                description="Removing fish faster than they can reproduce disrupts the delicate balance of the reef."
-                icon={<FishOff strokeWidth={1.5} className="w-full h-full" />}
-                delay={0.4}
-              />
-              <FeatureCard
-                title="Physical Damage"
-                description="Irresponsible boating, anchoring, and diving can destroy decades of coral growth in seconds."
-                icon={<Anchor strokeWidth={1.5} className="w-full h-full" />}
-                delay={0.6}
-              />
-            </div>
-          </div>
+        {/* ── SHALLOW REEF — Threats section with interactive scroll reveal ── */}
+        <section id="threats">
+          <ShallowReefThreats />
         </section>
 
         {/* ── CORAL FOREST discovery gap ─────────────────────────────────── */}
