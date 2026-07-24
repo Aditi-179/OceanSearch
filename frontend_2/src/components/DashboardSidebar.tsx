@@ -26,11 +26,6 @@ export default function DashboardSidebar() {
     { name: "Settings", href: "/dashboard/settings", icon: Gear },
   ];
 
-  const fleet = [
-    { id: "DSG-01", active: true },
-    { id: "DSG-02", active: true },
-    { id: "DSG-03", active: false },
-  ];
 
   return (
     <motion.div
@@ -110,64 +105,30 @@ export default function DashboardSidebar() {
         })}
       </div>
 
-      {/* Fleet Status */}
+      {/* Back to Portal */}
       <div className="p-6 border-t border-slate-800/50 shrink-0">
-        <AnimatePresence>
-          {isSidebarExpanded ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="whitespace-nowrap"
-            >
-              <h3 className="text-xs font-semibold text-slate-500 mb-4 tracking-wider uppercase">
-                Fleet Status
-              </h3>
-              <div className="space-y-3">
-                {fleet.map((drone) => (
-                  <div
-                    key={drone.id}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-sm font-medium text-slate-300">
-                      {drone.id}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {drone.active ? (
-                        <>
-                          <span className="text-[10px] text-[#39FF14] font-mono tracking-wider">
-                            ON
-                          </span>
-                          <div className="w-2 h-2 rounded-full bg-[#39FF14] animate-pulse shadow-[0_0_8px_rgba(57,255,20,0.6)]" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-[10px] text-red-500 font-mono tracking-wider">
-                            ERR
-                          </span>
-                          <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              {fleet.map((drone) => (
-                <div
-                  key={drone.id}
-                  className={`w-2 h-2 rounded-full ${
-                    drone.active
-                      ? "bg-[#39FF14] animate-pulse shadow-[0_0_8px_rgba(57,255,20,0.6)]"
-                      : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+        <Link
+          href="/"
+          className={`flex items-center text-slate-400 hover:text-white transition-colors group ${
+            !isSidebarExpanded ? "justify-center" : ""
+          }`}
+        >
+          <div className="p-2 bg-slate-800/50 rounded-lg group-hover:bg-[#00F0FF]/10 group-hover:text-[#00F0FF] transition-colors">
+            <CaretLeft size={20} weight="bold" />
+          </div>
+          <AnimatePresence>
+            {isSidebarExpanded && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="ml-3 whitespace-nowrap overflow-hidden text-sm font-medium"
+              >
+                Back to Portal
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Link>
       </div>
     </motion.div>
   );

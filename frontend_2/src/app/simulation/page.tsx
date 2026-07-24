@@ -373,10 +373,10 @@ export default function SimulationPage() {
                     <span className="text-slate-400">Total Intervention Cost</span>
                     <span className="text-white font-mono">₹{totalCost.toFixed(2)}Cr</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="relative w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                     <motion.div 
                       layout
-                      className="h-full bg-red-400 rounded-full" 
+                      className="absolute top-0 left-0 bottom-0 bg-red-400" 
                       style={{ width: `${Math.min(100, (totalCost/50)*100)}%` }} 
                     />
                   </div>
@@ -387,10 +387,10 @@ export default function SimulationPage() {
                     <span className="text-slate-400">Ecological Savings Generated</span>
                     <span className="text-white font-mono">₹{savings.toFixed(2)}Cr</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="relative w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                     <motion.div 
                       layout
-                      className="h-full bg-[#39FF14] rounded-full shadow-[0_0_10px_#39FF14]" 
+                      className="absolute top-0 left-0 bottom-0 bg-[#39FF14] shadow-[0_0_10px_#39FF14]" 
                       style={{ width: `${Math.min(100, (savings/50)*100)}%` }} 
                     />
                   </div>
