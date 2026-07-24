@@ -12,16 +12,18 @@ import {
   Anchor,
   Gear,
   CaretLeft,
+  Flask,
 } from "@phosphor-icons/react";
 
 export default function DashboardSidebar() {
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const pathname = usePathname();
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: MapTrifold },
     { name: "Map", href: "/dashboard/map", icon: MapTrifold },
     { name: "AI Vision", href: "/dashboard/ai-vision", icon: Scan },
+    { name: "Simulation", href: "/simulation", icon: Flask },
     { name: "Fleet", href: "/dashboard/fleet", icon: Waveform },
     { name: "Settings", href: "/dashboard/settings", icon: Gear },
   ];
@@ -38,6 +40,8 @@ export default function DashboardSidebar() {
       animate={{ width: isSidebarExpanded ? 240 : 80 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="h-full bg-slate-900/40 backdrop-blur-lg border-r border-slate-800 flex flex-col z-20 shrink-0"
+      onMouseEnter={() => setIsSidebarExpanded(true)}
+      onMouseLeave={() => setIsSidebarExpanded(false)}
     >
       {/* Header & Toggle */}
       <div className="flex items-center justify-between p-6 min-h-[88px] shrink-0">

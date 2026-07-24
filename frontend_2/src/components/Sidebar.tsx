@@ -12,6 +12,7 @@ import {
   Scan,
   Waveform,
   Gear,
+  Flask,
 } from "@phosphor-icons/react";
 
 export default function Sidebar() {
@@ -22,6 +23,7 @@ export default function Sidebar() {
     { name: "Dashboard", icon: MapTrifold, href: "/dashboard" },
     { name: "AI Vision", icon: Scan, href: "/research" }, // Assuming research is AI Vision given current structure
     { name: "Telemetry", icon: Waveform, href: "/dashboard" },
+    { name: "Simulation", icon: Flask, href: "/simulation" },
     { name: "Settings", icon: Gear, href: "/dashboard/settings" },
   ];
 
