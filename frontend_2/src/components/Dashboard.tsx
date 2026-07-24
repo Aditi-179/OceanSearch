@@ -4,22 +4,28 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { Activity, Crosshair, Radar, AlertTriangle, Eye, Video, ThermometerSun, Trash2 } from "lucide-react";
+import { io } from "socket.io-client";
 
-// --- DUMMY DATA FOR CHARTS ---
-const iotData = [
+// Connect to backend WebSocket
+const socket = io("http://127.0.0.1:5000");
+
+// --- INITIAL DUMMY DATA FOR CHARTS ---
+const initialIotData = [
   { time: "00:00", temp: 15.2, pollution: 40 },
   { time: "04:00", temp: 15.4, pollution: 45 },
   { time: "08:00", temp: 16.1, pollution: 75 },
   { time: "12:00", temp: 16.5, pollution: 90 },
   { time: "16:00", temp: 16.2, pollution: 65 },
   { time: "20:00", temp: 15.8, pollution: 55 },
-  { time: "24:00", temp: 15.5, pollution: 45 },
 ];
 
 export default function Dashboard() {
   const [colorblind, setColorblind] = useState(false);
   const [redAlert, setRedAlert] = useState(false);
+  const [threatMessage, setThreatMessage] = useState("CRITICAL THREAT DETECTED");
+  const [threatConfidence, setThreatConfidence] = useState("99%");
   const [timeline, setTimeline] = useState(0); // 0 to 100
+  const [chartData, setChartData] = useState(initialIotData);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Colors
@@ -51,15 +57,33 @@ export default function Dashboard() {
     osc.stop(ctx.currentTime + 1.5);
   };
 
-  // Simulate red alerts
+  // Connect to Socket.io for Real-time Data
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        setRedAlert(true);
-        setTimeout(() => setRedAlert(false), 2000);
-      }
-    }, 8000);
-    return () => clearInterval(interval);
+    // IoT Data Updates
+    const handleIotUpdate = (data: { time: string; temp: number; pollution: number }) => {
+      setChartData(prev => {
+        const newData = [...prev, data];
+        if (newData.length > 7) newData.shift(); // Keep only last 7 points
+        return newData;
+      });
+    };
+
+    // Critical Threats
+    const handleCriticalThreat = (data: { message: string; confidence: string }) => {
+      setThreatMessage(data.message);
+      setThreatConfidence(data.confidence);
+      setRedAlert(true);
+      playSonar(); // Play ping sound automatically
+      setTimeout(() => setRedAlert(false), 3000); // clear after 3 seconds
+    };
+
+    socket.on("iot_data_update", handleIotUpdate);
+    socket.on("critical_threat", handleCriticalThreat);
+
+    return () => {
+      socket.off("iot_data_update", handleIotUpdate);
+      socket.off("critical_threat", handleCriticalThreat);
+    };
   }, []);
 
   return (
@@ -78,9 +102,12 @@ export default function Dashboard() {
               boxShadow: `inset 0 0 100px ${dangerColor}80` 
             }}
           >
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#020813] border border-current px-6 py-2 rounded-full flex items-center gap-3" style={{ color: dangerColor }}>
-              <AlertTriangle className="w-5 h-5 animate-pulse" />
-              <span className="font-bold tracking-widest uppercase">Critical Threat Detected</span>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#020813] border border-current px-6 py-2 rounded-full flex flex-col items-center gap-1" style={{ color: dangerColor }}>
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 animate-pulse" />
+                <span className="font-bold tracking-widest uppercase">{threatMessage}</span>
+              </div>
+              <span className="text-xs font-mono opacity-80">CONFIDENCE: {threatConfidence}</span>
             </div>
           </motion.div>
         )}
@@ -227,7 +254,7 @@ export default function Dashboard() {
             </div>
             <div className="flex-grow">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={iotData}>
+                <BarChart data={chartData}>
                   <XAxis dataKey="time" stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip 
                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
@@ -249,7 +276,7 @@ export default function Dashboard() {
             </div>
             <div className="flex-grow">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={iotData}>
+                <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={safeColor} stopOpacity={0.4}/>
@@ -274,7 +301,7 @@ export default function Dashboard() {
             <div className="flex-grow flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
               {redAlert && (
                 <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-xs font-mono p-2 rounded bg-red-500/10 border border-red-500/30 text-red-400">
-                  [!] CRITICAL: Large ghost net detected in Sector 7G.
+                  {threatMessage}
                 </motion.div>
               )}
               <div className="text-xs font-mono p-2 rounded bg-white/5 border border-white/10 text-white/60">

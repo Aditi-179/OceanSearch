@@ -9,6 +9,11 @@ export const oceanState = {
   mouseY: 0,        // NDC -1 to 1
   healed: false,
   sonarPulse: 0,    // 0 to 1
+  
+  // New cinematic properties
+  timelineYear: 2025,
+  scenario: "current", // "current" | "worst_case" | "optimistic" | "cleanup"
+  accessibilityMode: "standard", // "standard" | "protanopia" | "deuteranopia" | "tritanopia" | "high_contrast" | "monochrome"
 };
 
 // Depth helpers based on scroll progress
@@ -45,9 +50,16 @@ if (typeof window !== "undefined") {
 
   window.addEventListener("click", () => {
     oceanState.sonarPulse = 1;
+    // Broadcast standard DOM event for react components to sync
+    window.dispatchEvent(new Event("trigger-sonar"));
+  });
+
+  window.addEventListener("trigger-sonar", () => {
+    oceanState.sonarPulse = 1;
   });
 
   window.addEventListener("ocean-heal", () => {
     oceanState.healed = true;
+    oceanState.scenario = "cleanup";
   });
 }

@@ -7,7 +7,10 @@ import { Shield, Anchor, CheckCircle2 } from "lucide-react";
 export default function VolunteerForm() {
   const [step, setStep] = useState(1);
   const [role, setRole] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const roles = [
     { id: "diver", title: "Reef Diver", desc: "Physically clean plastic from coral beds.", icon: Anchor },
@@ -52,11 +55,15 @@ export default function VolunteerForm() {
               <div className="space-y-4 mb-8">
                 <input 
                   type="text" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Full Name" 
                   className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-glow transition-colors"
                 />
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Encrypted Comm Link (Email)" 
                   className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-glow transition-colors"
                 />
@@ -81,10 +88,26 @@ export default function VolunteerForm() {
               <h4 className="text-2xl font-bold text-white mb-4">Credentials Verified</h4>
               <p className="text-white/60 mb-8">Ready to deploy as a {roles.find(r => r.id === role)?.title}.</p>
               <button 
-                onClick={() => setSubmitted(true)}
-                className="w-full py-4 rounded-xl bg-white text-background font-bold hover:bg-cyan-glow transition-colors"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await fetch("http://127.0.0.1:5000/api/volunteers", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name, email, role })
+                    });
+                    setSubmitted(true);
+                  } catch (e) {
+                    console.error(e);
+                    alert("Backend connection failed.");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full py-4 rounded-xl bg-white text-background font-bold hover:bg-cyan-glow transition-colors disabled:opacity-50"
               >
-                Confirm Deployment
+                {loading ? "Encrypting Data..." : "Confirm Deployment"}
               </button>
             </motion.div>
           )}

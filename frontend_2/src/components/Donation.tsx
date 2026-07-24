@@ -7,6 +7,7 @@ import { Heart, ChevronRight, Droplets } from "lucide-react";
 export default function Donation() {
   const [amount, setAmount] = useState(50);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Map amount to unlocked creature/badge
   const getReward = () => {
@@ -56,15 +57,29 @@ export default function Donation() {
             </div>
             
             <button 
-              onClick={() => {
-                setSubmitted(true);
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new Event('ocean-heal'));
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await fetch("http://127.0.0.1:5000/api/donations", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount, unlockedBadge: reward.name })
+                  });
+                  setSubmitted(true);
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event('ocean-heal'));
+                  }
+                } catch (e) {
+                  console.error(e);
+                  alert("Backend connection failed.");
+                } finally {
+                  setLoading(false);
                 }
               }}
-              className="group w-full py-4 rounded-xl bg-white text-background font-bold flex items-center justify-center gap-2 hover:bg-cyan-glow transition-colors duration-300"
+              disabled={loading}
+              className="group w-full py-4 rounded-xl bg-white text-background font-bold flex items-center justify-center gap-2 hover:bg-cyan-glow transition-colors duration-300 disabled:opacity-50"
             >
-              Deploy Support <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {loading ? "Processing..." : <>Deploy Support <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
             </button>
           </div>
           
