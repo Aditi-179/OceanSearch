@@ -1,10 +1,13 @@
 import Navbar from "@/components/Navbar";
 import Dashboard from "@/components/Dashboard";
+import Sidebar from "@/components/Sidebar";
 
 export default function ResearchPage() {
   return (
-    <main className="relative bg-[#020a16] min-h-screen text-foreground selection:bg-cyan-glow/30 selection:text-white">
-      <Navbar />
+    <main className="relative bg-[#020a16] min-h-screen text-foreground selection:bg-cyan-glow/30 selection:text-white flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Navbar />
 
       <section className="relative w-full pt-32 pb-16">
         <div className="container mx-auto px-6">
@@ -23,6 +26,7 @@ export default function ResearchPage() {
           <Dashboard />
         </div>
       </section>
+      </div>
     </main>
   );
 }
