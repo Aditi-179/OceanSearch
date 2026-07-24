@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { 
@@ -19,7 +19,7 @@ import {
 } from "@phosphor-icons/react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -29,7 +29,7 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.98 },
   show: { 
     opacity: 1, 
