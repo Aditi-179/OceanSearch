@@ -5,7 +5,7 @@ import Dashboard from "@/components/Dashboard";
 import Timeline from "@/components/Timeline";
 import Donation from "@/components/Donation";
 import DepthMeter from "@/components/DepthMeter";
-import OceanCanvas from "@/components/canvas/OceanCanvas";
+import EcosystemEngine from "@/components/canvas/EcosystemEngine";
 import OceanEffects from "@/components/OceanEffects";
 import Silhouettes from "@/components/Silhouettes";
 import { ThermometerSun, Trash2, Anchor, FishOff } from "lucide-react";
@@ -17,8 +17,8 @@ export default function Home() {
       <Navbar />
       <DepthMeter />
 
-      {/* Fixed 3D ocean background */}
-      <OceanCanvas />
+      {/* Fixed 3D ocean ecosystem engine */}
+      <EcosystemEngine />
 
       {/* DOM-level ocean effects (vignette, sonar rings, pressure lines) */}
       <OceanEffects />

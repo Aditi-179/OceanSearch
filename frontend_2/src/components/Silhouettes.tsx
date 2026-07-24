@@ -25,8 +25,64 @@ export default function Silhouettes() {
   const whaleY  = useTransform(scrollYProgress, [0.66, 0.94], ["48vh", "36vh"]);
   const whaleOp = useTransform(scrollYProgress, [0.66, 0.75, 0.87, 0.94], [0, 0.28, 0.28, 0]);
 
+  // ── Orca (Killer Whale) — Surface to Reef (0%→20%)
+  const orcaX  = useTransform(scrollYProgress, [0.0, 0.22], ["-30vw", "130vw"]);
+  const orcaY  = useTransform(scrollYProgress, [0.0, 0.22], ["10vh", "35vh"]);
+  const orcaOp = useTransform(scrollYProgress, [0.0, 0.1, 0.15, 0.22], [0, 0.45, 0.45, 0]);
+
+  // ── Whale Shark — Reef to Twilight (15%→45%)
+  const wSharkX  = useTransform(scrollYProgress, [0.15, 0.45], ["120vw", "-40vw"]);
+  const wSharkY  = useTransform(scrollYProgress, [0.15, 0.45], ["40vh", "25vh"]);
+  const wSharkOp = useTransform(scrollYProgress, [0.15, 0.25, 0.35, 0.45], [0, 0.35, 0.35, 0]);
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 6 }}>
+      
+      {/* ── ORCA (swimming right) ──────────────────────────────────────────── */}
+      <motion.div
+        style={{ x: orcaX, y: orcaY, opacity: orcaOp }}
+        className="absolute top-0 left-0 w-[420px] h-[180px]"
+      >
+        <svg viewBox="0 0 300 120" className="w-full h-full">
+          {/* Main body (black) */}
+          <path d="M20,60 C40,45 100,35 150,40 C200,45 250,55 280,60 C250,70 200,80 150,75 C100,70 40,65 20,60Z" fill="rgba(5,15,30,0.95)" />
+          {/* White eye patch */}
+          <ellipse cx="230" cy="53" rx="12" ry="6" fill="rgba(200,220,255,0.7)" transform="rotate(-15 230 53)" />
+          {/* White underbelly */}
+          <path d="M50,65 C100,72 150,74 200,68 C230,64 250,62 260,60 C230,68 150,85 50,65Z" fill="rgba(200,220,255,0.5)" />
+          {/* Dorsal fin (tall) */}
+          <path d="M120,40 C130,20 145,15 140,40Z" fill="rgba(5,15,30,0.95)" />
+          {/* Pectoral fin */}
+          <path d="M180,68 C175,85 160,95 155,90 C165,80 175,70 180,68Z" fill="rgba(5,15,30,0.9)" />
+          {/* Flukes */}
+          <path d="M20,60 C10,50 5,45 10,55 C15,60 20,60 20,60Z" fill="rgba(5,15,30,0.95)" />
+          <path d="M20,60 C10,70 5,75 10,65 C15,60 20,60 20,60Z" fill="rgba(5,15,30,0.95)" />
+        </svg>
+      </motion.div>
+
+      {/* ── WHALE SHARK (swimming left) ────────────────────────────────────── */}
+      <motion.div
+        style={{ x: wSharkX, y: wSharkY, opacity: wSharkOp }}
+        className="absolute top-0 left-0 w-[580px] h-[220px]"
+      >
+        <svg viewBox="0 0 400 140" className="w-full h-full">
+          {/* Body */}
+          <path d="M380,70 C350,50 250,40 180,45 C100,50 40,60 20,70 C40,85 100,95 180,90 C250,85 350,85 380,70Z" fill="rgba(15,45,75,0.9)" />
+          {/* Spots pattern */}
+          {[...Array(40)].map((_, i) => (
+            <circle key={i} cx={50 + Math.random() * 250} cy={50 + Math.random() * 35} r={1.5 + Math.random() * 2} fill="rgba(150,200,255,0.4)" />
+          ))}
+          {/* Mouth (blunt front) */}
+          <path d="M20,70 C15,65 15,75 20,70Z" fill="rgba(10,30,55,0.95)" />
+          {/* Dorsal fin */}
+          <path d="M220,44 C230,30 250,32 245,45Z" fill="rgba(15,45,75,0.9)" />
+          {/* Pectoral fin */}
+          <path d="M120,85 C110,110 90,120 85,110 C100,95 110,85 120,85Z" fill="rgba(15,45,75,0.9)" />
+          {/* Tail */}
+          <path d="M380,70 C395,50 410,45 405,60 C400,65 390,70 380,70Z" fill="rgba(15,45,75,0.9)" />
+          <path d="M380,70 C395,95 410,100 405,80 C400,75 390,70 380,70Z" fill="rgba(15,45,75,0.9)" />
+        </svg>
+      </motion.div>
 
       {/* ── MANTA RAY (top-down view, swimming right) ─────────────────────
           Wings spread top/bottom, body runs left-right, tail trails left  */}
