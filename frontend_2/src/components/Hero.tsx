@@ -40,7 +40,7 @@ export default function Hero() {
         >
           <span className="w-2 h-2 rounded-full bg-cyan-glow animate-pulse" />
           <span className="text-sm font-medium tracking-wide text-cyan-glow/90 uppercase">
-            DeepSea AI Initiative
+            OceanSearch AI Initiative
           </span>
         </motion.div>
 

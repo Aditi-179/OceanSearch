@@ -23,7 +23,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
             <h1 className="text-2xl font-bold text-white tracking-wide">Settings & Configuration</h1>
-            <p className="text-slate-400 mt-1">Manage your DeepSea Guardian telemetry and AI preferences.</p>
+            <p className="text-slate-400 mt-1">Manage your OceanSearch telemetry and AI preferences.</p>
           </div>
           <button className="flex items-center gap-2 bg-[#00F0FF]/10 hover:bg-[#00F0FF]/20 text-[#00F0FF] px-4 py-2 rounded-lg font-medium transition-colors border border-[#00F0FF]/30">
             <FloppyDisk size={20} weight="duotone" />

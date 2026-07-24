@@ -52,7 +52,7 @@ export default function Navbar() {
             <div className="absolute inset-0 rounded-full border border-cyan-glow/40 animate-ping" style={{ animationDuration: '2.5s' }} />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">
-            DeepSea<span className="font-light text-cyan-glow">Guardian</span>
+            Ocean<span className="font-light text-cyan-glow">Search</span>
           </span>
         </div>
 
