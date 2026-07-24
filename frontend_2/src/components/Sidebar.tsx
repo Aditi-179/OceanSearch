@@ -55,7 +55,7 @@ export default function Sidebar() {
                 transition={{ duration: 0.2 }}
                 className="font-bold text-white tracking-wide"
               >
-                DeepSea Guardian
+                Ocean Search
               </motion.span>
             )}
           </AnimatePresence>
