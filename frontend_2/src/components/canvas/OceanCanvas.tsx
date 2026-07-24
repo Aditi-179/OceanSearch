@@ -1,59 +1,110 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Sparkles, Float, Environment, Lightformer } from "@react-three/drei";
-import { useRef } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
 
+// We keep a global reference to scroll progress for the canvas to read synchronously
+let globalScrollProgress = 0;
+
+if (typeof window !== "undefined") {
+  window.addEventListener("scroll", () => {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    globalScrollProgress = Math.max(0, Math.min(1, window.scrollY / (maxScroll || 1)));
+  });
+}
+
+function DepthFog() {
+  const { scene } = useThree();
+  const fogColor = useMemo(() => new THREE.Color(), []);
+  
+  // Depth colors to interpolate between
+  const surfaceColor = useMemo(() => new THREE.Color("#003E6B"), []);
+  const midColor = useMemo(() => new THREE.Color("#00192E"), []);
+  const abyssColor = useMemo(() => new THREE.Color("#000000"), []);
+
+  useFrame(() => {
+    // Interpolate fog color based on scroll
+    let targetColor = surfaceColor;
+    if (globalScrollProgress < 0.5) {
+      targetColor = surfaceColor.clone().lerp(midColor, globalScrollProgress * 2);
+    } else {
+      targetColor = midColor.clone().lerp(abyssColor, (globalScrollProgress - 0.5) * 2);
+    }
+    
+    fogColor.lerp(targetColor, 0.1);
+    scene.background = fogColor;
+    if (scene.fog) {
+      scene.fog.color = fogColor;
+      // Increase fog density slightly as we go deeper
+      (scene.fog as THREE.FogExp2).density = THREE.MathUtils.lerp(0.04, 0.08, globalScrollProgress);
+    }
+  });
+
+  return null;
+}
+
 function Particles() {
-  const ref = useRef<THREE.Points>(null!);
+  const ref1 = useRef<THREE.Points>(null!);
+  const ref2 = useRef<THREE.Points>(null!);
+  const ref3 = useRef<THREE.Points>(null!); // Marine Snow for abyss
   
   useFrame((state, delta) => {
-    if (ref.current) {
-      ref.current.rotation.y += delta * 0.05;
-      ref.current.rotation.x += delta * 0.02;
+    if (ref1.current) {
+      ref1.current.rotation.y += delta * 0.05;
+      ref1.current.rotation.x += delta * 0.02;
+      // Fade out surface bubbles as we go deeper
+      (ref1.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0.5, 0, globalScrollProgress * 2);
+    }
+    if (ref2.current) {
+      ref2.current.rotation.y += delta * 0.02;
+      // Mid-level bioluminescence
+      const midOpacity = Math.sin(globalScrollProgress * Math.PI); // peaks at 0.5
+      (ref2.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0, 0.8, midOpacity);
+    }
+    if (ref3.current) {
+      ref3.current.position.y -= delta * 0.5; // drifting down
+      if (ref3.current.position.y < -10) ref3.current.position.y = 10;
+      // Abyss marine snow
+      const abyssOpacity = globalScrollProgress > 0.6 ? (globalScrollProgress - 0.6) * 2.5 : 0;
+      (ref3.current.material as THREE.PointsMaterial).opacity = THREE.MathUtils.lerp(0, 0.6, abyssOpacity);
     }
   });
 
   return (
-    <group ref={ref as any}>
-      <Sparkles 
-        count={300} 
-        scale={20} 
-        size={4} 
-        speed={0.4} 
-        opacity={0.3} 
-        color="#BDEBFF" 
-      />
-      <Sparkles 
-        count={150} 
-        scale={15} 
-        size={8} 
-        speed={0.2} 
-        opacity={0.1} 
-        color="#43F7FF" 
-      />
+    <group>
+      <group ref={ref1 as any}>
+        <Sparkles count={500} scale={30} size={6} speed={0.8} opacity={0.5} color="#DDF5FF" />
+      </group>
+      <group ref={ref2 as any}>
+        <Sparkles count={300} scale={20} size={10} speed={0.2} opacity={0} color="#43F7FF" />
+      </group>
+      <group ref={ref3 as any}>
+        <Sparkles count={800} scale={40} size={3} speed={0.1} opacity={0} color="#ffffff" />
+      </group>
     </group>
   );
 }
 
 function Caustics() {
-  // A simple representation of volumetric light/caustics using moving lightformers
   const group = useRef<THREE.Group>(null!);
   
   useFrame((state, delta) => {
     if (group.current) {
       group.current.position.x = Math.sin(state.clock.elapsedTime * 0.2) * 2;
       group.current.position.z = Math.cos(state.clock.elapsedTime * 0.2) * 2;
+      // Move light rig up so it fades out as camera "descends" (which is just scroll progress here)
+      group.current.position.y = THREE.MathUtils.lerp(0, 20, globalScrollProgress * 3);
     }
   });
 
   return (
     <group ref={group}>
-      <ambientLight intensity={0.2} color="#003E6B" />
+      <ambientLight intensity={0.1} color="#003E6B" />
       <directionalLight position={[0, 10, 5]} intensity={1.5} color="#43F7FF" castShadow />
       
-      {/* Volumetric "God Rays" feel */}
+      {/* Volumetric "God Rays" feel - only visible near surface */}
       <Environment resolution={256}>
         <group rotation={[-Math.PI / 4, -0.3, 0]}>
           <Lightformer intensity={4} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={[10, 10, 1]} color="#43F7FF" />
@@ -66,24 +117,82 @@ function Caustics() {
   );
 }
 
+// Optional: interactive fish flock that avoids cursor
+function FishFlock() {
+  const { mouse, viewport } = useThree();
+  const group = useRef<THREE.Group>(null!);
+  
+  // Dummy spheres for "fish" silhouettes
+  const fishCount = 15;
+  const positions = useMemo(() => Array.from({ length: fishCount }, () => new THREE.Vector3(
+    (Math.random() - 0.5) * 20,
+    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * 5 - 2
+  )), []);
+  
+  const fishRefs = useRef<THREE.Mesh[]>([]);
+
+  useFrame((state, delta) => {
+    // Only show near surface/shallows
+    const visibility = 1 - Math.min(1, globalScrollProgress * 3);
+    
+    const mouseX = (mouse.x * viewport.width) / 2;
+    const mouseY = (mouse.y * viewport.height) / 2;
+    const mouseVec = new THREE.Vector3(mouseX, mouseY, 0);
+
+    fishRefs.current.forEach((fish, i) => {
+      if (!fish) return;
+      fish.visible = visibility > 0.01;
+      (fish.material as THREE.MeshBasicMaterial).opacity = visibility * 0.5;
+      
+      // Swim slowly left to right
+      fish.position.x -= delta * 1.5;
+      if (fish.position.x < -15) fish.position.x = 15;
+      
+      // Avoid cursor
+      const dist = fish.position.distanceTo(mouseVec);
+      if (dist < 3) {
+        const dir = fish.position.clone().sub(mouseVec).normalize();
+        fish.position.add(dir.multiplyScalar(delta * 5));
+      }
+      
+      // Wiggle
+      fish.rotation.y = Math.sin(state.clock.elapsedTime * 5 + i) * 0.2;
+    });
+  });
+
+  return (
+    <group ref={group}>
+      {positions.map((pos, i) => (
+        <mesh 
+          key={i} 
+          position={pos} 
+          ref={(el) => { if (el) fishRefs.current[i] = el; }}
+        >
+          {/* Using a simple shape for silhouette */}
+          <capsuleGeometry args={[0.1, 0.4, 4, 8]} />
+          <meshBasicMaterial color="#000000" transparent opacity={0.5} fog={true} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export default function OceanCanvas() {
   return (
-    <div className="absolute inset-0 -z-10 bg-gradient-to-b from-surface-100 via-shallow-100 to-mid-100">
+    <div className="fixed inset-0 -z-50 pointer-events-none">
       <Canvas
         camera={{ position: [0, 0, 10], fov: 45 }}
         dpr={[1, 2]}
-        gl={{ antialias: false, alpha: true }}
+        gl={{ antialias: false, alpha: false }}
       >
-        <color attach="background" args={["#00192E"]} />
-        <fogExp2 attach="fog" args={["#00192E", 0.05]} />
+        <color attach="background" args={["#003E6B"]} />
+        <fogExp2 attach="fog" args={["#003E6B", 0.04]} />
+        <DepthFog />
         <Caustics />
         <Particles />
-        <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
-           {/* We could place 3D models here later, for now just particles and fog */}
-        </Float>
+        <FishFlock />
       </Canvas>
-      {/* Gradient overlay to blend into the rest of the site */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-deep-100/50 to-background" />
     </div>
   );
 }

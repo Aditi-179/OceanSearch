@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import Map, { Marker } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Activity, Crosshair, Radar } from "lucide-react";
+import { useRef } from "react";
 
 const mockData = [
   { time: "00:00", threatLevel: 12 },
@@ -17,8 +18,21 @@ const mockData = [
 ];
 
 export default function Dashboard() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "center center"]
+  });
+  
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
+
   return (
-    <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
+    <motion.div 
+      ref={containerRef}
+      style={{ opacity, y }}
+      className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 relative"
+    >
       {/* Map Section */}
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
@@ -106,6 +120,6 @@ export default function Dashboard() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
