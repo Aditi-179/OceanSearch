@@ -181,7 +181,7 @@ export default function FleetPage() {
                       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,240,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,240,255,0.03)_1px,transparent_1px)] bg-[length:20px_20px]" />
                       <div className="absolute top-[20%] left-[25%] w-24 h-24 border border-[#00F0FF] bg-[#00F0FF]/10 z-10">
                         <div className="absolute -top-6 left-[-1px] bg-[#00F0FF] text-[#0B1120] text-[10px] font-bold px-1 py-0.5 whitespace-nowrap">
-                          Sea Turtle 96%
+                          Coral - 96%
                         </div>
                       </div>
                     </>

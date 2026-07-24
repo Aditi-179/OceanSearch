@@ -13,6 +13,8 @@ import {
   Gear,
   CaretLeft,
   Flask,
+  ArrowLeft,
+  Globe,
 } from "@phosphor-icons/react";
 
 export default function DashboardSidebar() {
@@ -22,6 +24,7 @@ export default function DashboardSidebar() {
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: MapTrifold },
     { name: "Simulation", href: "/simulation", icon: Flask },
+    { name: "Risk Map", href: "/dashboard/map", icon: Globe },
     { name: "Fleet", href: "/dashboard/fleet", icon: Waveform },
     { name: "Settings", href: "/dashboard/settings", icon: Gear },
   ];
