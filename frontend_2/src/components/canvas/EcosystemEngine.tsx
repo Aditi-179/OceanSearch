@@ -4,8 +4,6 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { oceanState, depthLerp } from "@/lib/oceanState";
-import { EffectComposer, DepthOfField, Vignette, Noise, ChromaticAberration } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
 
 // Ecosystem Components
 import BoidsSwarm from "./creatures/BoidsSwarm";
@@ -300,11 +298,6 @@ export default function EcosystemEngine() {
         <DeepSeaJellies />
         <MidnightCreatures />
         <BenthicLife />
-
-        {/* Cinematic Post-Processing Lens */}
-        <EffectComposer disableNormalPass multisampling={0}>
-          <Noise opacity={0.03} blendFunction={BlendFunction.OVERLAY} />
-        </EffectComposer>
 
       </Canvas>
     </div>

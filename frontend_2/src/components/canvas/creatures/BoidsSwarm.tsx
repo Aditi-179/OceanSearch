@@ -19,16 +19,9 @@ const NEIGHBOR_DIST = 4;
 const DESIRED_SEPARATION = 1.5;
 
 function makeFishGeometry(scale = 1): THREE.BufferGeometry {
-  const shape = new THREE.Shape();
-  shape.moveTo(0.5 * scale, 0);
-  shape.bezierCurveTo(0.4 * scale, 0.18 * scale, -0.2 * scale, 0.22 * scale, -0.4 * scale, 0.08 * scale);
-  shape.lineTo(-0.5 * scale, 0);
-  shape.bezierCurveTo(-0.2 * scale, -0.22 * scale, 0.4 * scale, -0.18 * scale, 0.5 * scale, 0);
-  
-  // Make it 3D instead of 2D flat shape
-  const extrudeSettings = { depth: 0.08 * scale, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 };
-  const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  geo.center(); // Center the geometry for proper rotation
+  // A sleek cone rotated sideways makes a perfect low-poly fish
+  const geo = new THREE.ConeGeometry(0.12 * scale, 0.8 * scale, 4);
+  geo.rotateZ(-Math.PI / 2); // Point it along X axis
   return geo;
 }
 
@@ -57,7 +50,7 @@ export default function BoidsSwarm() {
       pos: new THREE.Vector3(
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 15,
-        (Math.random() - 0.5) * 8 - 2
+        (Math.random() - 0.5) * 8 + 6 // Spawn closely to camera (Z between 2 and 10) so they aren't lost in fog
       ),
       vel: new THREE.Vector3(
         (Math.random() - 0.5) * MAX_SPEED,
@@ -157,13 +150,12 @@ export default function BoidsSwarm() {
         }
       }
 
-      // Keep in bounds
       if (b.pos.x > 18) b.vel.x -= 0.1;
       if (b.pos.x < -18) b.vel.x += 0.1;
       if (b.pos.y > 10) b.vel.y -= 0.1;
       if (b.pos.y < -10) b.vel.y += 0.1;
-      if (b.pos.z > 4) b.vel.z -= 0.1;
-      if (b.pos.z < -8) b.vel.z += 0.1;
+      if (b.pos.z > 10) b.vel.z -= 0.1; // keep close
+      if (b.pos.z < 2) b.vel.z += 0.1; // don't go too deep into the dark fog
 
       b.vel.clampLength(0, MAX_SPEED);
       b.pos.add(b.vel.clone().multiplyScalar(delta));

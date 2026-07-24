@@ -81,18 +81,7 @@
     box-shadow: 0 0 20px rgba(67, 247, 255, 0.15);
   }
 
-  /* Underwater vignette — deepens with scroll via JS class */
-  .depth-vignette {
-    pointer-events: none;
-    position: fixed;
-    inset: 0;
-    z-index: 5;
-    background: radial-gradient(
-      ellipse at 50% 50%,
-      transparent 40%,
-      rgba(0, 5, 15, 0.55) 100%
-    );
-  }
+
 
   /* Chromatic aberration overlay applied via CSS filter on deep sections */
   .chroma-ab {
