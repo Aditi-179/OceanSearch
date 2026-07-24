@@ -80,6 +80,9 @@ export default function BoidsSwarm() {
   }, []);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  
+  // Throttle scanner updates
+  const scanTimer = useRef(0);
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
@@ -189,6 +192,40 @@ export default function BoidsSwarm() {
       
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
+      
+      // AI Scanning Logic (Throttle to 5Hz to save performance)
+      if (t - scanTimer.current > 0.2) {
+        const screenPos = b.pos.clone().project(state.camera);
+        // If a boid is very close to the center of the screen
+        if (Math.abs(screenPos.x) < 0.05 && Math.abs(screenPos.y) < 0.05 && screenPos.z < 1) {
+          // Convert NDC to pixel coordinates for the HUD
+          const px = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+          const py = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
+          
+          oceanState.scanTarget = {
+            id: `fish-${i}`,
+            name: "Blue Tang",
+            scientificName: "Paracanthurus hepatus",
+            confidence: (95 + Math.random() * 4).toFixed(2),
+            status: "Least Concern",
+            population: "Stable",
+            depth: `${Math.floor(oceanState.scroll * 200)}m`,
+            screenPos: { x: px, y: py }
+          };
+          
+          // Track discovery
+          if (!oceanState.discoveredSpecies.includes("Blue Tang")) {
+            oceanState.discoveredSpecies.push("Blue Tang");
+          }
+          
+          scanTimer.current = t;
+        }
+      }
+    }
+    
+    // Clear scan target if nothing found
+    if (t - scanTimer.current > 0.5) {
+      oceanState.scanTarget = null;
     }
     
     meshRef.current.instanceMatrix.needsUpdate = true;

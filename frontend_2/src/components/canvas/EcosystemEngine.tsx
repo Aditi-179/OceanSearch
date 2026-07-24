@@ -4,6 +4,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { oceanState, depthLerp } from "@/lib/oceanState";
+import { EffectComposer, DepthOfField, Vignette, Noise, ChromaticAberration } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 
 // Ecosystem Components
 import BoidsSwarm from "./creatures/BoidsSwarm";
@@ -11,6 +13,7 @@ import PredatorFish from "./creatures/PredatorFish";
 import DeepSeaJellies from "./creatures/DeepSeaJellies";
 import MidnightCreatures from "./creatures/MidnightCreatures";
 import BenthicLife from "./creatures/BenthicLife";
+import LivingCorals from "./creatures/LivingCorals";
 
 // ─── BACKGROUND & FOG ────────────────────────────────────────────────────────
 const DEPTH_COLORS = [
@@ -254,10 +257,29 @@ export default function EcosystemEngine() {
 
         {/* Fauna & Flora */}
         <BoidsSwarm />
+        <LivingCorals />
         <PredatorFish />
         <DeepSeaJellies />
         <MidnightCreatures />
         <BenthicLife />
+
+        {/* Cinematic Post-Processing Lens */}
+        <EffectComposer disableNormalPass multisampling={0}>
+          <DepthOfField 
+            focusDistance={0.01} 
+            focalLength={0.05} 
+            bokehScale={3} 
+            height={480} 
+          />
+          <ChromaticAberration 
+            blendFunction={BlendFunction.NORMAL}
+            offset={new THREE.Vector2(0.002, 0.002)}
+            radialModulation={true}
+            modulationOffset={0.5}
+          />
+          <Noise opacity={0.08} blendFunction={BlendFunction.OVERLAY} />
+          <Vignette eskil={false} offset={0.1} darkness={1.1} />
+        </EffectComposer>
 
       </Canvas>
     </div>

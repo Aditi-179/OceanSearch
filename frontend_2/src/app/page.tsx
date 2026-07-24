@@ -8,6 +8,10 @@ import DepthMeter from "@/components/DepthMeter";
 import EcosystemEngine from "@/components/canvas/EcosystemEngine";
 import OceanEffects from "@/components/OceanEffects";
 import Silhouettes from "@/components/Silhouettes";
+import ScannerHUD from "@/components/ScannerHUD";
+import LegendaryEncounters from "@/components/LegendaryEncounters";
+import DiscoveryLog from "@/components/DiscoveryLog";
+import ChapterDisplay from "@/components/ChapterDisplay";
 import { ThermometerSun, Trash2, Anchor, FishOff } from "lucide-react";
 
 export default function Home() {
@@ -22,6 +26,18 @@ export default function Home() {
 
       {/* DOM-level ocean effects (vignette, sonar rings, pressure lines) */}
       <OceanEffects />
+      
+      {/* AI Marine Scanner HUD */}
+      <ScannerHUD />
+
+      {/* Field Journal / Discovery Log */}
+      <DiscoveryLog />
+
+      {/* Legendary Encounters System */}
+      <LegendaryEncounters />
+      
+      {/* Chapter Transition Display */}
+      <ChapterDisplay />
       
       {/* Large CSS/SVG marine silhouettes (manta ray, turtle, whale, squid) */}
       <Silhouettes />
