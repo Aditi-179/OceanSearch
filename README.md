@@ -1,7 +1,7 @@
 # 🌊 Ocean Search
 ### AI-Powered Deep Ocean Pollution & Biodiversity Monitoring
 
-OceanSearchis an interactive frontend platform designed for the **HackOcean Frontend Hackathon**. It bridges the gap between complex marine AI monitoring systems and public engagement through immersive storytelling, real-time data visualization, and gamified conservation experiences. :contentReference[oaicite:0]{index=0}
+**OceanSearch** is an interactive frontend platform designed for the **HackOcean Frontend Hackathon**. It bridges the gap between complex marine AI monitoring systems and public engagement through immersive storytelling, real-time data visualization, and gamified conservation experiences.
 
 ---
 
@@ -16,28 +16,22 @@ Ocean conservation faces two major challenges:
 - **Complex Data Monitoring**
   - Marine researchers need an intuitive interface to monitor AI, IoT, sonar, and environmental data in real time.
 
-Our goal is to create a unified frontend that makes ocean conservation both **engaging for the public** and **powerful for researchers**. :contentReference[oaicite:1]{index=1}
+Our goal is to create a unified frontend that makes ocean conservation both **engaging for the public** and **powerful for researchers**.
 
 ---
 
 # ✨ Features
 
 ## 🌊 Scroll-to-Dive Experience
-
 A storytelling interface where the webpage transitions from the ocean surface into the deep sea as users scroll.
-
 - Dynamic background transitions
 - Immersive animations
 - Interactive storytelling
 
 ---
 
-## 🌞 Level 1 — Surface (Public Portal)
-
-Designed to encourage public participation.
-
-### Features
-
+## 🌞 Public Portal (Surface)
+Designed to encourage public participation and awareness.
 - 💙 Donation impact slider
 - 🎮 Gamified volunteer registration
 - 📈 Ocean conservation statistics
@@ -45,48 +39,30 @@ Designed to encourage public participation.
 
 ---
 
-## 🌑 Level 2 — Abyss (Research Dashboard)
-
-A professional command center for marine monitoring.
-
-### Includes
-
-- 🤖 Simulated AI video detection
-- 🗺️ Live plastic pollution heatmaps
-- 📊 Real-time IoT telemetry charts
-- 🚁 Drone monitoring dashboard
+## 🌑 Command Center (Abyss)
+A professional, high-tech dark mode dashboard for marine monitoring.
+- 🤖 **Simulated AI Video Detection**: Real-time bounding boxes detecting species and plastics.
+- 🗺️ **Live Pollution Heatmaps**: Spatial data visualization of ocean health.
+- 🚁 **Fleet Command Center**: An interactive roster to monitor and control autonomous underwater drones (`RX-7A`, `NX-2B`, etc.). Features GSAP-animated telemetry dials (Battery, Storage) and live mission terminal logs.
+- 🧪 **Digital Twin Simulation**: A sandbox environment where policymakers can adjust environmental levers (Gov Enforcement Budget, Fishing Penalties, Temperature) and instantly view the simulated impact on Ecological Tipping Points and the Blue Economy (Revenue & ROI in Indian Rupees).
 
 ---
 
 # 🌟 Unique Selling Points
 
-### 🤖 Simulated AI UI
+### 🧪 Interactive Digital Twin
+Dynamic state-driven simulation engine that calculates biomass recovery and financial outcomes (Carbon Credits, Eco-Tourism) based on user-adjusted policy sliders.
 
+### 🚁 Fleet Telemetry Dials
+GSAP-powered SVG circle gauges that smoothly spool up or down when switching between active and offline drone units.
+
+### 🤖 Simulated AI UI
 CSS animations and DOM overlays simulate real-time AI detections without requiring backend inference.
 
-### 🎮 Gamified Engagement
-
-Users can generate their own **"Adopt a Drone" ID Card**, making conservation interactive.
-
 ### ♿ Accessibility First
-
-- Fully responsive
+- Fully responsive App Router architecture
 - SEO optimized
-- Colorblind-friendly map mode
-
-### 📈 Predictive Time-Lapse
-
-Interactive slider visualizing future plastic pollution through dynamic heatmaps.
-
-### 🔊 Sonar-Synced Interface
-
-Immersive sonar pings synchronized with live map animations.
-
-### 🚨 Contextual Red Alerts
-
-Critical AI detections trigger fullscreen warning animations.
-
-:contentReference[oaicite:3]{index=3}
+- High-contrast premium dark mode UI
 
 ---
 
@@ -94,34 +70,32 @@ Critical AI detections trigger fullscreen warning animations.
 
 | Category | Technology |
 |----------|------------|
-| Framework | React.js / Next.js |
+| Framework | Next.js 14+ (App Router) / React |
 | Styling | Tailwind CSS |
-| UI Components | shadcn/ui |
-| Animations | Framer Motion |
-| Maps | React Map GL (Mapbox) |
-| Charts | Recharts |
-
+| UI Components | Phosphor Icons, Custom Glassmorphism |
+| Animations | Framer Motion & GSAP (`@gsap/react`) |
+| Data Vis | Native SVG Animations & CSS Gradients |
 
 ---
 
 # 📂 Project Structure
 
-```
-Ocean Search/
+```text
+OceanSearch/
 │
-├── public/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── sections/
-│   ├── hooks/
-│   ├── lib/
-│   ├── assets/
-│   └── styles/
-│
-├── package.json
-├── tailwind.config.js
-├── next.config.js
+├── frontend_2/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── dashboard/       # Main command center
+│   │   │   │   ├── fleet/       # Drone fleet management
+│   │   │   │   └── settings/    # Generic settings
+│   │   │   └── simulation/      # Digital Twin ecosystem
+│   │   ├── components/          # Reusable UI (Sidebar, Navbar)
+│   │   └── lib/
+│   │
+│   ├── package.json
+│   ├── tailwind.config.ts
+│   └── next.config.mjs
 └── README.md
 ```
 
@@ -129,17 +103,23 @@ Ocean Search/
 
 # ⚙️ Installation
 
+To run this frontend locally:
+
 ```bash
-git clone https://github.com/your-username/deepsea-guardian.git
+# Clone the repository
+git clone https://github.com/Aditi-179/OceanSearch.git
 
-cd deepsea-guardian
+# Navigate to the frontend directory
+cd OceanSearch/frontend_2
 
+# Install dependencies
 npm install
 
+# Start the development server
 npm run dev
 ```
 
-For production:
+For production build:
 
 ```bash
 npm run build
@@ -150,13 +130,10 @@ npm start
 
 # 🎯 Future Improvements
 
-- Backend AI integration
-- Live underwater drone feeds
-- Real-time IoT sensor connectivity
-- AI-powered marine species detection
-- Donation payment gateway
-- Multi-language support
-- Progressive Web App (PWA)
+- Backend AI integration for real-time video feed inference
+- Live IoT sensor connectivity for physical drones
+- Donation payment gateway integration (Stripe/Razorpay)
+- Multi-language support for global NGOs
 
 ---
 
