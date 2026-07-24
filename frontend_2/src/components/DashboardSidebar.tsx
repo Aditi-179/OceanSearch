@@ -21,8 +21,6 @@ export default function DashboardSidebar() {
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: MapTrifold },
-    { name: "Map", href: "/dashboard/map", icon: MapTrifold },
-    { name: "AI Vision", href: "/dashboard/ai-vision", icon: Scan },
     { name: "Simulation", href: "/simulation", icon: Flask },
     { name: "Fleet", href: "/dashboard/fleet", icon: Waveform },
     { name: "Settings", href: "/dashboard/settings", icon: Gear },

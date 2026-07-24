@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import {
   VideoCamera,
   Warning,
@@ -16,16 +16,62 @@ import {
   Fish,
   Wind
 } from "@phosphor-icons/react";
+import { motion } from "framer-motion";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { type: "spring", stiffness: 300, damping: 24 } 
+  }
+};
 
 export default function DashboardPage() {
+  const svgScope = useRef(null);
+
+  useGSAP(() => {
+    // GSAP Advanced Timeline for SVGs to draw them on mount
+    gsap.fromTo(
+      ".gsap-path", 
+      { strokeDasharray: 200, strokeDashoffset: 200 },
+      { strokeDashoffset: 0, duration: 2, ease: "power3.out", stagger: 0.15 }
+    );
+    
+    gsap.fromTo(
+      ".gsap-gauge",
+      { strokeDashoffset: 125 },
+      { strokeDashoffset: 0, duration: 1.5, ease: "bounce.out", delay: 0.5 }
+    );
+  }, { scope: svgScope });
+
   return (
-    <div className="flex-1 bg-[#0B1120] text-slate-300 font-sans p-6 space-y-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="flex-1 bg-[#0B1120] text-slate-300 font-sans p-6 space-y-8"
+      ref={svgScope}
+    >
       
       {/* ---------------- ROW 1 ---------------- */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* AI DRONE FEED (col-span-6) */}
-        <div className="lg:col-span-6 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[420px] shadow-2xl relative">
+        <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }} className="lg:col-span-6 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[420px] shadow-2xl relative">
           <div className="flex justify-between items-center p-4 border-b border-slate-800/50 z-10 bg-slate-900/80">
             <h2 className="text-sm font-bold text-white tracking-widest flex items-center gap-2 uppercase">
               AI Drone Feed
@@ -67,10 +113,10 @@ export default function DashboardPage() {
               <span>Location: Indian Ocean</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* THREAT ALERTS (col-span-3) */}
-        <div className="lg:col-span-3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[420px] shadow-2xl">
+        <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }} className="lg:col-span-3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[420px] shadow-2xl">
           <div className="flex justify-between items-center p-4 border-b border-slate-800/50">
             <h2 className="text-sm font-bold text-white tracking-widest uppercase">Threat Alerts</h2>
             <button className="text-xs text-[#00F0FF] hover:underline uppercase tracking-wider font-semibold">View All</button>
@@ -90,9 +136,8 @@ export default function DashboardPage() {
                   </div>
                   <p className="text-xs text-slate-400 mt-1">High density detected</p>
                   
-                  {/* Mini Sparkline SVG */}
                   <svg className="w-full h-6 mt-3 text-red-500" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M0,15 L20,10 L40,18 L60,8 L80,12 L100,5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path className="gsap-path" d="M0,15 L20,10 L40,18 L60,8 L80,12 L100,5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <p className="text-[10px] font-mono text-slate-500 mt-2">10:21 AM</p>
                 </div>
@@ -113,19 +158,18 @@ export default function DashboardPage() {
                   </div>
                   <p className="text-xs text-slate-400 mt-1">Vessel detected in zone</p>
                   
-                  {/* Mini Sparkline SVG */}
                   <svg className="w-full h-6 mt-3 text-orange-500" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M0,18 L20,15 L40,16 L60,10 L80,12 L100,8" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path className="gsap-path" d="M0,18 L20,15 L40,16 L60,10 L80,12 L100,8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <p className="text-[10px] font-mono text-slate-500 mt-2">10:15 AM</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* OCEAN HEALTH SCORE (col-span-3) */}
-        <div className="lg:col-span-3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[420px] shadow-2xl p-6">
+        <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }} className="lg:col-span-3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[420px] shadow-2xl p-6">
           <h2 className="text-sm font-bold text-white tracking-widest uppercase mb-6">Ocean Health Score</h2>
           
           <div className="flex-1 flex flex-col items-center">
@@ -135,7 +179,7 @@ export default function DashboardPage() {
                 {/* Background arc */}
                 <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1E293B" strokeWidth="12" strokeLinecap="round" />
                 {/* Progress arc (Good score, mostly green/cyan) */}
-                <path d="M 10 50 A 40 40 0 0 1 82 20" fill="none" stroke="url(#gradient)" strokeWidth="12" strokeLinecap="round" strokeDasharray="125" strokeDashoffset="0" />
+                <path className="gsap-gauge" d="M 10 50 A 40 40 0 0 1 82 20" fill="none" stroke="url(#gradient)" strokeWidth="12" strokeLinecap="round" strokeDasharray="125" />
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#0ea5e9" />
@@ -164,7 +208,12 @@ export default function DashboardPage() {
                     <span className="text-white">{m.val}</span>
                   </div>
                   <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <div className={`h-full ${m.color} rounded-full`} style={{ width: `${m.reverse ? m.val : m.val}%` }} />
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${m.reverse ? m.val : m.val}%` }}
+                      transition={{ duration: 1.5, delay: 0.5 + (i * 0.1), ease: "easeOut" }}
+                      className={`h-full ${m.color} rounded-full`} 
+                    />
                   </div>
                 </div>
               ))}
@@ -173,19 +222,19 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
       {/* ---------------- ROW 2 (IOT SENSORS) ---------------- */}
-      <div>
+      <motion.div variants={itemVariants}>
         <h3 className="text-xs font-bold text-slate-500 tracking-widest uppercase mb-4 flex items-center gap-2">
           IoT Sensor Data
           <span className="flex items-center gap-1 text-[10px] text-[#39FF14] ml-2">
             <div className="w-1.5 h-1.5 rounded-full bg-[#39FF14] animate-pulse" /> LIVE
           </span>
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           
           {[
             { title: "Water Temp", val: "24.6", unit: "°C", color: "text-blue-400", path: "M0,15 L10,12 L20,18 L30,10 L40,15 L50,8", icon: Thermometer },
@@ -195,7 +244,7 @@ export default function DashboardPage() {
             { title: "Turbidity", val: "2.1", unit: "NTU", color: "text-orange-400", path: "M0,8 L15,10 L30,14 L40,12 L50,15", icon: Waves },
             { title: "Biodiversity Index", val: "78", unit: "/100", color: "text-purple-400", path: "M0,20 L15,15 L30,5 L40,4 L50,8", icon: Fish },
           ].map((sensor, i) => (
-            <div key={i} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-4 flex flex-col hover:border-slate-700 transition-colors cursor-default">
+            <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)" }} key={i} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-4 flex flex-col hover:border-slate-700 transition-colors cursor-default">
               <div className="flex justify-between items-start mb-2">
                 <span className="text-xs font-semibold text-slate-400">{sensor.title}</span>
                 <sensor.icon size={14} className="text-slate-600" />
@@ -206,24 +255,24 @@ export default function DashboardPage() {
               </div>
               <div className="mt-auto">
                 <svg className={`w-full h-6 ${sensor.color}`} viewBox="0 0 50 20" fill="none" stroke="currentColor" strokeWidth="2" preserveAspectRatio="none">
-                  <path d={sensor.path} strokeLinecap="round" strokeLinejoin="round"/>
+                  <path className="gsap-path" d={sensor.path} strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div className="flex justify-between text-[8px] font-mono text-slate-600 mt-2">
                   <span>10:00 AM</span>
                   <span>10:33 AM</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
 
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* ---------------- ROW 3 ---------------- */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
         
         {/* LIVE OCEAN MAP (col-span-4) */}
-        <div className="lg:col-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col h-[500px] shadow-2xl relative overflow-hidden">
+        <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }} className="lg:col-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col h-[500px] shadow-2xl relative overflow-hidden">
           <div className="flex justify-between items-center z-10 mb-6">
             <h2 className="text-sm font-bold text-white tracking-widest uppercase">Live Ocean Map</h2>
             <div className="flex gap-2">
@@ -239,7 +288,7 @@ export default function DashboardPage() {
             
             {/* Map Nodes/Connections */}
             <svg className="absolute inset-0 w-full h-full">
-              <path d="M 50 150 Q 150 100 250 200" fill="none" stroke="#00F0FF" strokeWidth="1" strokeDasharray="4 4" className="opacity-30 animate-pulse" />
+              <path className="gsap-path" d="M 50 150 Q 150 100 250 200" fill="none" stroke="#00F0FF" strokeWidth="1" strokeDasharray="4 4" style={{ strokeDasharray: 200 }} />
             </svg>
 
             <div className="absolute top-[30%] left-[40%] w-2 h-2 bg-red-500 rounded-full animate-ping shadow-[0_0_10px_red]" />
@@ -265,10 +314,10 @@ export default function DashboardPage() {
               <button className="w-8 h-8 bg-slate-800 text-white rounded flex items-center justify-center hover:bg-slate-700">-</button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ANALYTICS OVERVIEW (col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col h-[500px]">
+        <motion.div variants={itemVariants} className="lg:col-span-4 flex flex-col h-[500px]">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-sm font-bold text-white tracking-widest uppercase">Analytics Overview</h2>
             <span className="flex items-center gap-1 text-[10px] text-[#39FF14]">
@@ -276,50 +325,50 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <motion.div variants={containerVariants} className="grid grid-cols-2 gap-4 mb-4">
             {/* Card 1 */}
-            <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
+            <motion.div variants={itemVariants} whileHover={{ scale: 1.05 }} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
               <span className="text-xs font-semibold text-slate-400 mb-2">AI Species Detected</span>
               <span className="text-3xl font-bold text-white tracking-tight mb-2">1,248</span>
               <span className="text-[10px] font-bold text-[#10b981] flex items-center gap-1"><Plus size={10} /> 12%</span>
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10">
                 <Fish size={80} weight="fill" />
               </div>
-            </div>
+            </motion.div>
             
             {/* Card 2 */}
-            <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
+            <motion.div variants={itemVariants} whileHover={{ scale: 1.05 }} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
               <span className="text-xs font-semibold text-slate-400 mb-2">Plastic Collected</span>
               <span className="text-3xl font-bold text-white tracking-tight mb-2">12.4 <span className="text-sm text-slate-500">Ton</span></span>
               <span className="text-[10px] font-bold text-[#10b981] flex items-center gap-1"><Plus size={10} /> 18%</span>
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10">
                 <Drop size={80} weight="fill" />
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 3 */}
-            <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
+            <motion.div variants={itemVariants} whileHover={{ scale: 1.05 }} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
               <span className="text-xs font-semibold text-slate-400 mb-2">Drone Missions</span>
               <span className="text-3xl font-bold text-white tracking-tight mb-2">32</span>
               <span className="text-[10px] font-bold text-[#10b981] flex items-center gap-1"><Plus size={10} /> 6%</span>
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10">
                 <MapPin size={80} weight="fill" />
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 4 */}
-            <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
+            <motion.div variants={itemVariants} whileHover={{ scale: 1.05 }} className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col relative overflow-hidden">
               <span className="text-xs font-semibold text-slate-400 mb-2">Active Sensors</span>
               <span className="text-3xl font-bold text-white tracking-tight mb-2">276</span>
               <span className="text-[10px] font-bold text-[#10b981] flex items-center gap-1"><Plus size={10} /> 14%</span>
               <div className="absolute right-[-10px] bottom-[-10px] opacity-10">
                 <Warning size={80} weight="fill" />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Wide Chart Card */}
-          <div className="flex-1 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col group cursor-pointer hover:border-slate-700 transition-colors">
+          <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="flex-1 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-xl p-5 flex flex-col group cursor-pointer hover:border-slate-700 transition-colors">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className="text-xs font-semibold text-slate-400 block mb-1">Ocean Health Score</span>
@@ -332,14 +381,14 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1 mt-auto flex items-end">
               <svg className="w-full h-12 text-blue-500" viewBox="0 0 100 20" fill="none" stroke="currentColor" strokeWidth="2" preserveAspectRatio="none">
-                <path d="M0,18 L10,16 L20,17 L30,12 L40,14 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path className="gsap-path" d="M0,18 L10,16 L20,17 L30,12 L40,14 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* LATEST EVENTS (col-span-4) */}
-        <div className="lg:col-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[500px] shadow-2xl">
+        <motion.div variants={itemVariants} whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }} className="lg:col-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col h-[500px] shadow-2xl">
           <div className="flex justify-between items-center p-6 border-b border-slate-800/50">
             <h2 className="text-sm font-bold text-white tracking-widest uppercase">Latest Events</h2>
             <button className="text-xs text-[#00F0FF] hover:underline uppercase tracking-wider font-semibold">View All</button>
@@ -369,9 +418,9 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
