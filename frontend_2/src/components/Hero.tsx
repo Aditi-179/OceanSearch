@@ -70,12 +70,16 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           <Link
             href="/dashboard"
-            className="px-8 py-4 bg-cyan-glow/10 hover:bg-cyan-glow/20 border border-cyan-glow text-cyan-glow font-semibold tracking-widest uppercase rounded-full transition-all duration-300 backdrop-blur-sm"
+            className="group relative inline-flex items-center justify-center px-10 py-5 bg-gradient-to-b from-[#00F0FF] to-[#0080FF] text-[#0B1120] font-black tracking-[0.2em] uppercase rounded-full transition-all duration-300 shadow-[0_10px_30px_rgba(0,240,255,0.4),inset_0_-4px_0_rgba(0,0,0,0.2),inset_0_2px_0_rgba(255,255,255,0.5)] hover:shadow-[0_15px_40px_rgba(0,240,255,0.6),inset_0_-4px_0_rgba(0,0,0,0.2),inset_0_2px_0_rgba(255,255,255,0.5)] overflow-hidden"
           >
-            Explore Ocean
+            {/* Shimmer effect overlay using CSS transition instead of custom keyframes */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+            <span className="relative z-10 drop-shadow-md">Explore Ocean</span>
           </Link>
         </motion.div>
       </motion.div>
