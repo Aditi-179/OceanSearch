@@ -9,7 +9,12 @@ import {
   Bell,
 } from "@phosphor-icons/react";
 
+import PredictiveMap from "@/components/dashboard/PredictiveMap";
+import IotCharts from "@/components/dashboard/IotCharts";
+import { useSimulationEngine } from "@/lib/useSimulationEngine";
+
 export default function DashboardPage() {
+  const { chartData } = useSimulationEngine();
 
   const alerts = [
     {
@@ -43,7 +48,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden z-10">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 z-10 scrollbar-hide">
       {/* Top Bar: IoT Telemetry */}
       <div className="h-20 shrink-0 grid grid-cols-3 gap-4">
         <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex items-center px-6 gap-4">
@@ -83,74 +88,53 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* The Main Grid */}
-      <div className="grid grid-cols-12 grid-rows-6 gap-4 flex-1 min-h-0">
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        {/* Center Map (Predictive Risk) */}
-        <div className="col-span-8 row-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl relative overflow-hidden flex flex-col p-6">
-          <div className="flex justify-between items-center z-10 mb-4">
-            <h2 className="text-lg font-semibold text-white tracking-wide">Predictive Risk Map</h2>
-            <span className="px-3 py-1 bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[#00F0FF] text-xs font-mono rounded-full">
-              LIVE FEED
-            </span>
+        {/* Left Column */}
+        <div className="lg:col-span-8 flex flex-col gap-4">
+          
+          {/* Center Map (Predictive Risk with Play Button) */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl relative overflow-hidden flex flex-col h-[500px]">
+            <PredictiveMap />
           </div>
-          
-          {/* Simulated Map Background */}
-          <div className="absolute inset-0 top-16 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0f1b36] via-[#0B1120] to-[#0B1120] opacity-80" />
-          
-          {/* Grid overlay */}
-          <div className="absolute inset-0 top-16 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-5" />
 
-          {/* Glowing Red Plastic Accumulation Heatmap */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-600/30 blur-[60px] rounded-full pointer-events-none" />
-          <div className="absolute top-[45%] left-[55%] w-32 h-32 bg-orange-500/40 blur-[40px] rounded-full pointer-events-none" />
-          
-          {/* Pulsing Cyan Drone Dots */}
-          <div className="absolute top-1/3 left-1/4">
-            <div className="w-3 h-3 bg-[#00F0FF] rounded-full animate-ping absolute opacity-75" style={{ animationDuration: '2s' }} />
-            <div className="w-3 h-3 bg-[#00F0FF] rounded-full relative shadow-[0_0_12px_#00F0FF]" />
-            <span className="absolute top-4 left-4 text-[10px] font-mono text-[#00F0FF] bg-[#00F0FF]/10 px-1 rounded">DSG-01</span>
+          {/* IoT Charts (Bar Graphs) */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl overflow-hidden p-6 h-[400px] flex flex-col">
+             <IotCharts data={chartData} />
           </div>
-          
-          <div className="absolute bottom-1/3 right-1/4">
-            <div className="w-3 h-3 bg-[#00F0FF] rounded-full animate-ping absolute opacity-75" style={{ animationDuration: '2s', animationDelay: '1s' }} />
-            <div className="w-3 h-3 bg-[#00F0FF] rounded-full relative shadow-[0_0_12px_#00F0FF]" />
-            <span className="absolute top-4 left-4 text-[10px] font-mono text-[#00F0FF] bg-[#00F0FF]/10 px-1 rounded">DSG-02</span>
-          </div>
-        </div>
 
-        {/* Bottom Left (AI Benthic Vision) */}
-        <div className="col-span-8 row-span-2 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl relative overflow-hidden p-6 flex flex-col">
-           <div className="flex justify-between items-center z-20 mb-2">
-            <h2 className="text-lg font-semibold text-white tracking-wide">AI Benthic Vision Feed</h2>
-            <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-               <span className="text-xs font-mono text-red-500 tracking-widest">REC</span>
+          {/* Bottom Left (AI Benthic Vision) */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl relative overflow-hidden p-6 flex flex-col h-[300px]">
+             <div className="flex justify-between items-center z-20 mb-2">
+              <h2 className="text-lg font-semibold text-white tracking-wide">AI Benthic Vision Feed</h2>
+              <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                 <span className="text-xs font-mono text-red-500 tracking-widest">REC</span>
+              </div>
             </div>
-          </div>
-          
-          {/* Camera Feed Background */}
-          <div className="absolute inset-0 top-14 bg-gradient-to-b from-[#091524] to-[#040a14]" />
-          <div className="absolute inset-0 top-14 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:100%_4px] pointer-events-none" />
+            
+            {/* Camera Feed Background */}
+            <div className="absolute inset-0 top-14 bg-gradient-to-b from-[#091524] to-[#040a14]" />
+            <div className="absolute inset-0 top-14 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:100%_4px] pointer-events-none" />
 
-          {/* AI Bounding Boxes */}
-          {/* Ghost Net (Red) */}
-          <div className="absolute top-[40%] left-[20%] w-48 h-32 border-2 border-red-500 bg-red-500/5 z-10 flex flex-col justify-end p-1">
-            <span className="text-[10px] bg-red-500 text-white font-mono px-1 w-max">
-              [Ghost Net] 98%
-            </span>
-          </div>
+            {/* AI Bounding Boxes */}
+            <div className="absolute top-[40%] left-[20%] w-48 h-32 border-2 border-red-500 bg-red-500/5 z-10 flex flex-col justify-end p-1">
+              <span className="text-[10px] bg-red-500 text-white font-mono px-1 w-max">
+                [Ghost Net] 98%
+              </span>
+            </div>
 
-          {/* Hawksbill Turtle (Green) */}
-          <div className="absolute bottom-[20%] right-[15%] w-32 h-24 border-2 border-[#39FF14] bg-[#39FF14]/5 z-10 flex flex-col justify-start p-1">
-            <span className="text-[10px] bg-[#39FF14] text-black font-mono font-bold px-1 w-max -mt-5">
-              [Hawksbill Turtle] 94%
-            </span>
+            <div className="absolute bottom-[20%] right-[15%] w-32 h-24 border-2 border-[#39FF14] bg-[#39FF14]/5 z-10 flex flex-col justify-start p-1">
+              <span className="text-[10px] bg-[#39FF14] text-black font-mono font-bold px-1 w-max -mt-5">
+                [Hawksbill Turtle] 94%
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Right Panel (Live Alerts) */}
-        <div className="col-span-4 row-span-6 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
+        <div className="lg:col-span-4 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl flex flex-col overflow-hidden min-h-[600px]">
           <div className="p-6 border-b border-slate-800/50 flex items-center justify-between shrink-0">
             <h2 className="text-lg font-semibold text-white tracking-wide flex items-center gap-2">
               <Bell size={20} className="text-slate-400" />
