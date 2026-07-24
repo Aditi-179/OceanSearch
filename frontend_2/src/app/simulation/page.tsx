@@ -1,216 +1,346 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Thermometer, 
   Drop, 
   PaperPlaneTilt,
   Heartbeat,
-  ClockCounterClockwise
+  Bank,
+  Scales,
+  ChartLineUp,
+  Leaf,
+  WarningCircle,
+  CurrencyDollar,
+  Recycle
 } from "@phosphor-icons/react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default function SimulationPage() {
+  // Environmental States
   const [temperature, setTemperature] = useState(26);
   const [phLevel, setPhLevel] = useState(8.1);
   const [droneCount, setDroneCount] = useState(10);
-
-  // Derived state for calculations
-  const isBleaching = temperature > 29 || phLevel < 7.9;
   
-  // Calculate survival rate based on temperature and pH
-  let survivalRate = 100;
-  if (temperature > 26) {
-    survivalRate -= (temperature - 26) * 15;
-  }
-  if (phLevel < 8.1) {
-    survivalRate -= (8.1 - phLevel) * 100;
-  }
-  survivalRate = Math.max(0, Math.min(100, Math.round(survivalRate)));
+  // Policy & Financial States
+  const [budget, setBudget] = useState(10); // $M
+  const [penalties, setPenalties] = useState(5); // 1-10
 
-  // Calculate cleanup time (1000 / drones)
-  const cleanupMonths = droneCount > 0 ? (1000 / droneCount).toFixed(1) : "Infinite";
-  const efficiency = Math.min(100, (droneCount / 100) * 100);
+  // ----------------------------------------
+  // LOGIC & CALCULATIONS
+  // ----------------------------------------
+
+  // Card 1: Ecological Tipping Point
+  const isExtinction = temperature > 30;
+  const targetReached = temperature < 29 && budget > 5;
+  
+  const biomassMessage = isExtinction 
+    ? "Mass Extinction Event Triggered (-45% Biomass)"
+    : targetReached 
+      ? "Target Reached (+12% YoY)"
+      : "Stagnant Recovery (-2% YoY)";
+  
+  const biomassColor = isExtinction ? "text-red-500" : targetReached ? "text-[#39FF14]" : "text-yellow-500";
+
+  let turtleSurvival = 100 - (Math.max(0, temperature - 26) * 10) - ((8.1 - phLevel) * 50);
+  turtleSurvival += (penalties * 1.5) + (droneCount * 0.1);
+  turtleSurvival = Math.max(0, Math.min(100, Math.round(turtleSurvival)));
+
+  // Card 2: Blue Economy Financial Impact
+  let revenue = 500; // Base $500M
+  if (temperature > 29) {
+    revenue = 80;
+  } else {
+    revenue += (budget * 4) + (penalties * 2);
+  }
+  const isRevenueCrater = revenue <= 80;
+  
+  // Dynamic SVG Path for revenue
+  const revenuePath = isRevenueCrater 
+    ? "M 0 50 C 20 50, 40 90, 60 95 S 80 98, 100 100" 
+    : targetReached 
+      ? "M 0 80 C 20 80, 40 50, 60 40 S 80 10, 100 0"
+      : "M 0 60 L 20 60 L 40 50 L 60 55 L 80 50 L 100 45";
+  const revenueChartColor = isRevenueCrater ? "stroke-red-500" : targetReached ? "stroke-[#39FF14]" : "stroke-[#00F0FF]";
+
+  // Card 3: ROI & Resource Efficiency
+  const droneCost = droneCount * 0.015; // ₹Cr
+  const totalCost = droneCost + budget; // Total Gov investment
+  const savings = (droneCount * 0.120) + (penalties * 1.2); // ₹Cr
+  const roiMultiplier = totalCost > 0 ? (savings / totalCost).toFixed(2) : "0.00";
+
+  // Card 4: Carbon Credit Generation
+  let blueCarbon = 150 + (droneCount * 0.4) + (budget * 1.5) + (penalties * 2);
+  if (temperature > 29) blueCarbon -= 80;
+  blueCarbon = Math.max(0, Math.round(blueCarbon));
+
 
   return (
     <div className="h-screen w-full flex overflow-hidden bg-[#0B1120] text-slate-300 font-sans selection:bg-[#00F0FF]/30 selection:text-white">
       <DashboardSidebar />
       <div className="flex-1 flex p-6 gap-6 overflow-hidden">
-      
-      {/* Left Column: The Lab Controls */}
-      <div className="w-1/3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col gap-8 overflow-y-auto scrollbar-hide shrink-0 shadow-2xl">
-        <div>
-          <h2 className="text-2xl font-bold text-white tracking-wide flex items-center gap-2">
-            <Thermometer className="text-[#00F0FF]" weight="duotone" />
-            Environmental Variables
-          </h2>
-          <p className="text-sm text-slate-400 mt-2">
-            Adjust the parameters below to run real-time predictive models on the digital twin.
-          </p>
-        </div>
-
-        <div className="space-y-8 flex-1">
-          {/* Temperature Slider */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-end">
-              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                <Thermometer size={16} /> Water Temperature
-              </label>
-              <span className={`text-xl font-mono font-bold ${temperature > 29 ? 'text-red-400' : 'text-[#00F0FF]'}`}>
-                {temperature}°C
-              </span>
-            </div>
-            <input
-              type="range"
-              min="24"
-              max="34"
-              step="0.5"
-              value={temperature}
-              onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
-            />
-            <div className="flex justify-between text-xs text-slate-500 font-mono">
-              <span>24°C</span>
-              <span>34°C</span>
-            </div>
-          </div>
-
-          {/* pH Level Slider */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-end">
-              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                <Drop size={16} /> Ocean pH (Acidity)
-              </label>
-              <span className={`text-xl font-mono font-bold ${phLevel < 7.9 ? 'text-red-400' : 'text-[#00F0FF]'}`}>
-                {phLevel.toFixed(1)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="7.5"
-              max="8.3"
-              step="0.1"
-              value={phLevel}
-              onChange={(e) => setPhLevel(parseFloat(e.target.value))}
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
-            />
-            <div className="flex justify-between text-xs text-slate-500 font-mono">
-              <span>7.5 (Acidic)</span>
-              <span>8.3 (Normal)</span>
-            </div>
-          </div>
-
-          {/* Drone Fleet Slider */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-end">
-              <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                <PaperPlaneTilt size={16} /> Active Drone Fleet
-              </label>
-              <span className="text-xl font-mono font-bold text-[#00F0FF]">
-                {droneCount} Units
-              </span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="100"
-              step="1"
-              value={droneCount}
-              onChange={(e) => setDroneCount(parseInt(e.target.value))}
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
-            />
-            <div className="flex justify-between text-xs text-slate-500 font-mono">
-              <span>1</span>
-              <span>100</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Column: The Digital Twin Output */}
-      <div className="w-2/3 flex flex-col gap-6">
         
-        {/* Top Panel: Coral Bleaching Simulator */}
-        <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col h-1/2 shadow-2xl relative overflow-hidden group">
-          <div className="flex items-center gap-2 mb-4 z-10 relative">
-            <Heartbeat size={24} weight="duotone" className={isBleaching ? "text-red-500" : "text-[#00F0FF]"} />
-            <h2 className="text-xl font-bold text-white tracking-wide">Reef Health Prediction</h2>
+        {/* ================= LEFT COLUMN: LAB CONTROLS ================= */}
+        <div className="w-1/3 bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col gap-6 overflow-y-auto scrollbar-hide shrink-0 shadow-2xl">
+          <div>
+            <h2 className="text-xl font-bold text-white tracking-wide flex items-center gap-2">
+              <Scales className="text-[#00F0FF]" weight="duotone" />
+              Policy & Environmental Levers
+            </h2>
+            <p className="text-xs text-slate-400 mt-2">
+              Adjust parameters to simulate multi-sector outcomes for stakeholders.
+            </p>
           </div>
+
+          <div className="space-y-6 flex-1">
+            {/* Gov Budget Slider */}
+            <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Bank size={16} className="text-emerald-400" /> Enforcement Budget
+                </label>
+                <span className="text-lg font-mono font-bold text-emerald-400">
+                  ₹{budget}Cr
+                </span>
+              </div>
+              <input
+                type="range" min="1" max="50" step="1"
+                value={budget} onChange={(e) => setBudget(parseFloat(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+              />
+            </div>
+
+            {/* Penalties Slider */}
+            <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <WarningCircle size={16} className="text-orange-400" /> Fishing Penalties
+                </label>
+                <span className="text-lg font-mono font-bold text-orange-400">
+                  Level {penalties}
+                </span>
+              </div>
+              <input
+                type="range" min="1" max="10" step="1"
+                value={penalties} onChange={(e) => setPenalties(parseInt(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-400"
+              />
+              <div className="flex justify-between text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                <span>Lax</span>
+                <span>Draconian</span>
+              </div>
+            </div>
+
+            <div className="h-px bg-slate-800/50 my-2" />
+
+            {/* Temperature Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Thermometer size={16} /> Water Temp
+                </label>
+                <span className={`text-lg font-mono font-bold ${temperature > 29 ? 'text-red-400' : 'text-[#00F0FF]'}`}>
+                  {temperature}°C
+                </span>
+              </div>
+              <input
+                type="range" min="24" max="34" step="0.5"
+                value={temperature} onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
+              />
+            </div>
+
+            {/* pH Level Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Drop size={16} /> Ocean pH
+                </label>
+                <span className={`text-lg font-mono font-bold ${phLevel < 7.9 ? 'text-red-400' : 'text-[#00F0FF]'}`}>
+                  {phLevel.toFixed(1)}
+                </span>
+              </div>
+              <input
+                type="range" min="7.5" max="8.3" step="0.1"
+                value={phLevel} onChange={(e) => setPhLevel(parseFloat(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
+              />
+            </div>
+
+            {/* Drone Fleet Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <PaperPlaneTilt size={16} /> Drone Fleet
+                </label>
+                <span className="text-lg font-mono font-bold text-[#00F0FF]">
+                  {droneCount} Units
+                </span>
+              </div>
+              <input
+                type="range" min="1" max="100" step="1"
+                value={droneCount} onChange={(e) => setDroneCount(parseInt(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F0FF]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ================= RIGHT COLUMN: 2x2 GRID ================= */}
+        <div className="w-2/3 grid grid-cols-2 gap-6 overflow-y-auto scrollbar-hide pb-6">
           
-          <motion.div 
-            className="flex-1 rounded-xl relative overflow-hidden flex items-center justify-center p-8 transition-colors duration-1000 ease-in-out border border-white/5"
-            animate={{
-              background: isBleaching 
-                ? "linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)" // Dead white/gray
-                : "linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%)" // Vibrant Cyan to Purple
-            }}
-          >
-            {/* Overlay Grid */}
-            <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
+          {/* Card 1: Ecological Tipping Point */}
+          <div className={`bg-slate-900/40 backdrop-blur-lg border ${isExtinction ? 'border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'border-slate-800'} rounded-2xl p-6 flex flex-col relative overflow-hidden transition-all duration-500`}>
+            <div className="flex items-center gap-2 mb-4">
+              <Heartbeat size={24} weight="duotone" className={isExtinction ? "text-red-500" : "text-[#00F0FF]"} />
+              <h2 className="text-sm font-bold text-white tracking-widest uppercase">Ecological Tipping Point</h2>
+            </div>
             
-            <div className="relative z-10 text-center">
-              <p className={`text-sm font-medium tracking-widest uppercase mb-2 ${isBleaching ? 'text-slate-500' : 'text-white/80'}`}>
-                Coral Survival Rate
-              </p>
-              <motion.h3 
-                className={`text-7xl md:text-8xl font-black tracking-tighter ${isBleaching ? 'text-slate-800' : 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]'}`}
+            <div className="flex-1 flex flex-col justify-center">
+              <p className="text-xs text-slate-400 mb-2 uppercase tracking-widest">Marine Biomass Recovery Index</p>
+              <motion.div 
+                key={biomassMessage}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`text-2xl font-black tracking-tight ${biomassColor}`}
               >
-                {survivalRate}%
-              </motion.h3>
+                {biomassMessage}
+              </motion.div>
               
-              {isBleaching && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 inline-flex items-center gap-2 bg-red-500/10 text-red-600 border border-red-500/20 px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md"
-                >
-                  <Thermometer size={16} /> Critical Bleaching Event Detected
-                </motion.div>
+              <div className="mt-8 bg-[#040A14] border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                <span className="text-sm text-slate-400">Keystone Species Survival (Turtles)</span>
+                <span className={`text-2xl font-mono font-bold ${turtleSurvival < 50 ? 'text-red-500' : 'text-[#39FF14]'}`}>
+                  {turtleSurvival}%
+                </span>
+              </div>
+            </div>
+            
+            <div className="absolute right-0 bottom-0 p-8 opacity-5 pointer-events-none">
+              <Heartbeat size={150} weight="fill" />
+            </div>
+          </div>
+
+          {/* Card 2: Blue Economy Financial Impact */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col relative overflow-hidden group">
+            <div className="flex items-center gap-2 mb-4">
+              <ChartLineUp size={24} weight="duotone" className="text-emerald-400" />
+              <h2 className="text-sm font-bold text-white tracking-widest uppercase">Blue Economy Impact</h2>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <p className="text-xs text-slate-400 mb-2 uppercase tracking-widest">Protected Tourism & Fishery Rev</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-5xl font-black tracking-tighter ${isRevenueCrater ? 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'text-white'}`}>
+                  ₹{revenue}
+                </span>
+                <span className="text-xl text-slate-500 font-medium">Crore</span>
+              </div>
+
+              {isRevenueCrater && (
+                <div className="mt-2 text-xs font-bold text-red-500 bg-red-500/10 w-fit px-2 py-1 rounded inline-flex items-center gap-1">
+                  <WarningCircle size={14} /> Critical Revenue Collapse (Bleaching)
+                </div>
               )}
-            </div>
-          </motion.div>
-        </div>
 
-        {/* Bottom Panel: Fleet Efficiency Prediction */}
-        <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col h-1/2 shadow-2xl relative">
-          <div className="flex items-center gap-2 mb-6">
-            <ClockCounterClockwise size={24} weight="duotone" className="text-[#00F0FF]" />
-            <h2 className="text-xl font-bold text-white tracking-wide">Accumulation Cleanup Forecast</h2>
-          </div>
-          
-          <div className="flex-1 flex flex-col justify-center max-w-lg">
-            <p className="text-slate-400 mb-2">Estimated Time to Clean Sector Alpha</p>
-            <div className="flex items-end gap-3 mb-8">
-              <span className="text-6xl font-black text-white tracking-tighter">
-                {cleanupMonths}
-              </span>
-              <span className="text-xl font-medium text-slate-500 pb-2">Months</span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-slate-300">Resource Allocation Efficiency</span>
-                <span className="text-[#00F0FF] font-mono">{efficiency.toFixed(0)}%</span>
-              </div>
-              <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gradient-to-r from-[#00F0FF] to-blue-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${efficiency}%` }}
-                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                />
+              {/* Glowing Line Chart */}
+              <div className="flex-1 mt-6 relative h-24 w-full">
+                <svg className="w-full h-full drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path 
+                    d={revenuePath} 
+                    fill="none" 
+                    className={revenueChartColor}
+                    strokeWidth="3" 
+                    strokeLinecap="round" 
+                  />
+                  {/* Subtle gradient fill under line */}
+                  <path 
+                    d={`${revenuePath} L 100 100 L 0 100 Z`} 
+                    fill="url(#revenueGrad)" 
+                    className="opacity-20"
+                  />
+                  <defs>
+                    <linearGradient id="revenueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor={isRevenueCrater ? "red" : "#00F0FF"} />
+                      <stop offset="100%" stopColor="transparent" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
             </div>
           </div>
-          
-          {/* Decorative background element */}
-          <div className="absolute right-0 bottom-0 p-8 opacity-5 pointer-events-none">
-            <PaperPlaneTilt size={200} weight="fill" />
-          </div>
-        </div>
 
-      </div>
+          {/* Card 3: ROI & Resource Efficiency */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-4">
+              <CurrencyDollar size={24} weight="duotone" className="text-[#00F0FF]" />
+              <h2 className="text-sm font-bold text-white tracking-widest uppercase">ROI & Efficiency</h2>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="space-y-6">
+                
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-400">Total Intervention Cost</span>
+                    <span className="text-white font-mono">₹{totalCost.toFixed(2)}Cr</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-400 rounded-full" style={{ width: `${Math.min(100, (totalCost/50)*100)}%` }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-400">Ecological Savings Generated</span>
+                    <span className="text-white font-mono">₹{savings.toFixed(2)}Cr</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#39FF14] rounded-full shadow-[0_0_10px_#39FF14]" style={{ width: `${Math.min(100, (savings/50)*100)}%` }} />
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-slate-800/50">
+                <p className="text-sm text-slate-300">
+                  Every <span className="font-bold text-white">₹1</span> invested yields <span className="font-bold text-[#00F0FF] text-xl px-1">₹{roiMultiplier}</span> in long-term ecological savings.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Carbon Credit Generation */}
+          <div className="bg-slate-900/40 backdrop-blur-lg border border-slate-800 rounded-2xl p-6 flex flex-col relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-4">
+              <Leaf size={24} weight="duotone" className="text-emerald-400" />
+              <h2 className="text-sm font-bold text-white tracking-widest uppercase">Blue Carbon Impact</h2>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center items-center text-center">
+              <div className="relative group cursor-pointer">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl group-hover:blur-3xl transition-all" />
+                <div className="relative w-40 h-40 border-[4px] border-emerald-500/30 rounded-full flex flex-col items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                  <span className="text-4xl font-black text-emerald-400 tracking-tighter drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">
+                    {blueCarbon}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                    Megatons
+                  </span>
+                </div>
+              </div>
+              
+              <p className="text-xs text-slate-400 mt-6 max-w-[250px]">
+                Actively captured via protected seagrass meadows & coral restoration efforts.
+              </p>
+            </div>
+            
+            <div className="absolute left-[-10px] top-[-10px] opacity-[0.03] pointer-events-none">
+              <Recycle size={250} weight="fill" />
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );
